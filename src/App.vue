@@ -1,5 +1,4 @@
 <template>
-  <div class="text-center">TSUEV-VUE-TEMPLATE</div>
   <RouterView />
 </template>
 
