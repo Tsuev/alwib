@@ -1,22 +1,26 @@
 import { useSupabase } from '@/composables/useSupabase'
+import type { UserAuthType } from '@/types/AuthTypes'
 
 const { supabase } = useSupabase()
 
-const signUp = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { nickname: 'Tsuev ' } },
-  })
-  if (error) {
-    console.error('Error signUp in:', error.message)
-    return null
+const signUp = async ({ email, password, nickname }: UserAuthType) => {
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { nickname } },
+    })
+    if (error) {
+      return null
+    }
+
+    return user
+  } catch (error) {
+    console.log(error)
   }
-  if (data) {
-    console.log('User sigsignUpned in:', data.user)
-    return data.user
-  }
-  return null
 }
 
 export { signUp }

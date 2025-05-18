@@ -6,16 +6,11 @@
           <img src="/alwib.png" width="72" class="mb-2" />
           <h2 class="text-xl mb-5">Alwib Workspace</h2>
           <h2 class="text-2xl mb-3">Авторизация</h2>
-          <Form>
+          <Form @submit="signUpApp">
+            <InputText class="mb-3" name="nickname" type="text" placeholder="Никнейм" fluid />
             <InputText class="mb-3" name="email" type="email" placeholder="Почта" fluid />
             <InputText class="mb-5" name="password" type="password" placeholder="Пароль" fluid />
-            <Button
-              type="submit"
-              severity="primary"
-              label="Зарегистрироваться"
-              fluid
-              @click="testSignUp"
-            />
+            <Button type="submit" severity="primary" label="Зарегистрироваться" fluid />
           </Form>
         </div>
       </template>
@@ -32,21 +27,22 @@ import Button from 'primevue/button'
 import { useBreakpoints } from '@/composables/useBreakpoints'
 
 import { signUp } from '@/services/authServices'
+import type { UserAuthType } from '@/types/AuthTypes'
 
 const { mobile } = useBreakpoints()
 
-const testSignUp = async () => {
-  const reg = await signUp('tsuevjudoka@gmail.com', '12345678')
-
-  console.log('reg', reg)
+const signUpApp = async ({ values }: { values: unknown }) => {
+  const user = await signUp(values as UserAuthType)
+  console.log(user)
 }
 </script>
 
 <style lang="scss" scoped>
 :deep(.p-card.neon) {
   position: relative;
-  padding: 20px; /* отступы внутри блока */
+  padding: 20px;
   border-radius: 8px;
+  max-width: 500px;
   &::before {
     content: '';
     position: absolute;
