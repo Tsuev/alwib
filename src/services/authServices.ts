@@ -5,21 +5,20 @@ const { supabase } = useSupabase()
 
 const signUp = async ({ email, password, nickname }: UserAuthType) => {
   try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { nickname } },
+      options: {
+        data: { nickname },
+        emailRedirectTo: window.location.origin,
+      },
     })
-    if (error) {
-      return null
-    }
 
-    return user
+    if (error) throw error
+    return data
   } catch (error) {
-    console.log(error)
+    console.error('Signup error:', error)
+    return null
   }
 }
 
