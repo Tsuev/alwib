@@ -1,15 +1,14 @@
 <template>
   <Form @submit="signUpApp">
-    <h2 class="text-2xl mb-3 text-center">Регистрация</h2>
-    <InputText class="mb-3" name="nickname" type="text" placeholder="Никнейм" fluid required />
+    <h2 class="text-2xl mb-3 text-center">Войти</h2>
     <InputText class="mb-3" name="email" type="email" placeholder="Почта" fluid required />
     <InputText class="mb-5" name="password" type="password" placeholder="Пароль" fluid required />
-    <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading />
+    <Button type="submit" severity="primary" label="Войти" fluid :loading />
     <div
       class="mt-3 text-right text-green-300 font-semibold cursor-pointer"
-      @click="$emit('switch-to-login')"
+      @click="$emit('switch-to-signup')"
     >
-      Войти в аккаунт
+      Зарегестрироваться
     </div>
   </Form>
 </template>
@@ -26,9 +25,7 @@ import services from '@/services/services'
 import type { UserAuthType } from '@/types/AuthTypes'
 
 import { useUserStore } from '@/stores/userStore'
-import { useToast } from 'primevue/usetoast'
 
-const toast = useToast()
 const userStore = useUserStore()
 
 const loading = ref(false)
@@ -37,7 +34,7 @@ const signUpApp = async ({ values }: { values: unknown }) => {
   try {
     loading.value = true
 
-    const response = await services.auth.signUp(values as UserAuthType, toast)
+    const response = await services.auth.login(values as UserAuthType)
 
     if (response?.user) userStore.user = response.user
   } catch (error) {

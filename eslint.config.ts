@@ -21,6 +21,7 @@ export default defineConfigWithVueTs(
       'vue/multi-word-component-names': 'off',
       quotes: ['error', 'single'],
       'no-console': ['warn', { allow: ['warn'] }],
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   vueTsConfigs.recommended,

@@ -1,11 +1,15 @@
 import { useSupabase } from '@/composables/useSupabase'
 import type { UserAuthType } from '@/types/AuthTypes'
+import { type ToastServiceMethods } from 'primevue/toastservice'
 
 const { supabase } = useSupabase()
 
-const signUp = async ({ email, password, nickname }: UserAuthType) => {
+const signUp = async ({ email, password, nickname }: UserAuthType, toast: ToastServiceMethods) => {
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const {
+      data: { session, user },
+      error,
+    } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -15,9 +19,15 @@ const signUp = async ({ email, password, nickname }: UserAuthType) => {
     })
 
     if (error) throw error
-    return data
-  } catch (error) {
-    console.error('Signup error:', error)
+
+    return { session, user }
+  } catch (error: any) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка регистрации',
+      detail: error?.message,
+      life: 3000,
+    })
   }
 }
 
@@ -33,4 +43,4 @@ const login = async ({ email, password }: Omit<UserAuthType, 'nickname'>) => {
   }
 }
 
-export { signUp, login }
+export default { signUp, login }

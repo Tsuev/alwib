@@ -4,8 +4,13 @@
       <template #content>
         <div class="auth-form flex flex-col items-center">
           <img src="/alwib.png" width="72" class="mb-2" />
-          <h2 class="text-xl mb-5">Alwib Workspace</h2>
-          <SignUp />
+          <OverlayBadge value="alpha" severity="info" size="small">
+            <h2 class="text-xl mb-5">Alwib Workspace</h2>
+          </OverlayBadge>
+          <Transition mode="out-in">
+            <SignUp v-if="!isLogin" @switch-to-login="isLogin = true" />
+            <Login v-else @switch-to-signup="isLogin = false" />
+          </Transition>
         </div>
       </template>
     </Card>
@@ -15,10 +20,15 @@
 <script setup lang="ts">
 import Card from 'primevue/card'
 import SignUp from '@/components/auth/SignUp.vue'
+import Login from '@/components/auth/Login.vue'
+import OverlayBadge from 'primevue/overlaybadge'
 
 import { useBreakpoints } from '@/composables/useBreakpoints'
+import { ref } from 'vue'
 
 const { mobile } = useBreakpoints()
+
+const isLogin = ref(false)
 </script>
 
 <style lang="scss" scoped>
@@ -57,5 +67,15 @@ const { mobile } = useBreakpoints()
     opacity: 0.3;
     box-shadow: 0 0 10px rgba(0, 136, 0, 0.5);
   }
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
