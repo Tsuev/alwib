@@ -18,8 +18,19 @@ const signUp = async ({ email, password, nickname }: UserAuthType) => {
     return data
   } catch (error) {
     console.error('Signup error:', error)
-    return null
   }
 }
 
-export { signUp }
+const login = async ({ email, password }: Omit<UserAuthType, 'nickname'>) => {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) throw error
+
+    return data
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export { signUp, login }

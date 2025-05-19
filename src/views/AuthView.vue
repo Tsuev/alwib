@@ -1,11 +1,24 @@
 <template>
   <div class="flex justify-center h-screen w-screen items-center">
-    <SignUp />
+    <Card :class="{ 'w-full h-full flex justify-center rounded-0': mobile, neon: !mobile }">
+      <template #content>
+        <div class="auth-form flex flex-col items-center">
+          <img src="/alwib.png" width="72" class="mb-2" />
+          <h2 class="text-xl mb-5">Alwib Workspace</h2>
+          <SignUp />
+        </div>
+      </template>
+    </Card>
   </div>
 </template>
 
 <script setup lang="ts">
+import Card from 'primevue/card'
 import SignUp from '@/components/auth/SignUp.vue'
+
+import { useBreakpoints } from '@/composables/useBreakpoints'
+
+const { mobile } = useBreakpoints()
 </script>
 
 <style lang="scss" scoped>

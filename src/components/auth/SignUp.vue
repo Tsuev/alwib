@@ -1,37 +1,35 @@
 <template>
-  <Card :class="{ 'w-full h-full flex justify-center rounded-0': mobile, neon: !mobile }">
-    <template #content>
-      <div class="auth-form flex flex-col items-center">
-        <img src="/alwib.png" width="72" class="mb-2" />
-        <h2 class="text-xl mb-5">Alwib Workspace</h2>
-        <h2 class="text-2xl mb-3">Регистрация</h2>
-        <Form @submit="signUpApp">
-          <InputText class="mb-3" name="nickname" type="text" placeholder="Никнейм" fluid />
-          <InputText class="mb-3" name="email" type="email" placeholder="Почта" fluid />
-          <InputText class="mb-5" name="password" type="password" placeholder="Пароль" fluid />
-          <Button type="submit" severity="primary" label="Зарегистрироваться" fluid />
-        </Form>
-      </div>
-    </template>
-  </Card>
+  <Form @submit="signUpApp">
+    <h2 class="text-2xl mb-3 text-center">Регистрация</h2>
+    <InputText class="mb-3" name="nickname" type="text" placeholder="Никнейм" fluid />
+    <InputText class="mb-3" name="email" type="email" placeholder="Почта" fluid />
+    <InputText class="mb-5" name="password" type="password" placeholder="Пароль" fluid />
+    <Button type="submit" severity="primary" label="Зарегистрироваться" fluid />
+  </Form>
 </template>
 
 <script setup lang="ts">
-import Card from 'primevue/card'
+import { ref } from 'vue'
+
 import InputText from 'primevue/inputtext'
 import { Form } from '@primevue/forms'
 import Button from 'primevue/button'
 
-import { useBreakpoints } from '@/composables/useBreakpoints'
-
 import { signUp } from '@/services/authServices'
 import type { UserAuthType } from '@/types/AuthTypes'
 
-const { mobile } = useBreakpoints()
+const loading = ref(false)
 
 const signUpApp = async ({ values }: { values: unknown }) => {
-  const user = await signUp(values as UserAuthType)
-  console.log(user)
+  try {
+    loading.value = true
+
+    const user = await signUp(values as UserAuthType)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
