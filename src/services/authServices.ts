@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSupabase } from '@/composables/useSupabase'
 import type { UserAuthType } from '@/types/AuthTypes'
 import { type ToastServiceMethods } from 'primevue/toastservice'
@@ -31,16 +32,44 @@ const signUp = async ({ email, password, nickname }: UserAuthType, toast: ToastS
   }
 }
 
-const login = async ({ email, password }: Omit<UserAuthType, 'nickname'>) => {
+const login = async (
+  { email, password }: Omit<UserAuthType, 'nickname'>,
+  toast: ToastServiceMethods,
+) => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) throw error
 
     return data
-  } catch (error) {
-    console.error(error)
+  } catch (error: any) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка входа',
+      detail: error?.message,
+      life: 3000,
+    })
   }
 }
 
-export default { signUp, login }
+const getUser = async (toast: ToastServiceMethods) => {
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+
+    if (error) throw error
+
+    return user
+  } catch (error: any) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка получения данных',
+      detail: error?.message,
+      life: 3000,
+    })
+  }
+}
+
+export default { signUp, login, getUser }

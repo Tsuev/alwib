@@ -1,5 +1,5 @@
 <template>
-  <Form @submit="signUpApp">
+  <Form @submit="login">
     <h2 class="text-2xl mb-3 text-center">Войти</h2>
     <InputText class="mb-3" name="email" type="email" placeholder="Почта" fluid required />
     <InputText class="mb-5" name="password" type="password" placeholder="Пароль" fluid required />
@@ -24,19 +24,28 @@ import services from '@/services/services'
 
 import type { UserAuthType } from '@/types/AuthTypes'
 
+import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '@/stores/userStore'
+import { useRouter } from 'vue-router'
 
+const toast = useToast()
 const userStore = useUserStore()
+const router = useRouter()
 
 const loading = ref(false)
 
-const signUpApp = async ({ values }: { values: unknown }) => {
+const login = async ({ values }: { values: unknown }) => {
   try {
     loading.value = true
 
-    const response = await services.auth.login(values as UserAuthType)
+    const response = await services.auth.login(values as UserAuthType, toast)
 
     if (response?.user) userStore.user = response.user
+
+    localStorage.setItem('access_token', response?.session.access_token || '')
+    localStorage.setItem('refresh_token', response?.session.refresh_token || '')
+
+    router.push({ name: 'home' })
   } catch (error) {
     console.error(error)
   } finally {

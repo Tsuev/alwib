@@ -12,6 +12,14 @@
       Войти в аккаунт
     </div>
   </Form>
+  <Dialog
+    v-model:visible="showConfirmModal"
+    modal
+    header="Подтверждение почты"
+    :style="{ width: '25rem' }"
+  >
+    Мы отправили письмо на вашу почту. Пройдите по ссылке и подтвердите свою почту.
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -20,6 +28,7 @@ import { ref } from 'vue'
 import InputText from 'primevue/inputtext'
 import { Form } from '@primevue/forms'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
 
 import services from '@/services/services'
 
@@ -32,6 +41,7 @@ const toast = useToast()
 const userStore = useUserStore()
 
 const loading = ref(false)
+const showConfirmModal = ref(false)
 
 const signUpApp = async ({ values }: { values: unknown }) => {
   try {
@@ -40,6 +50,8 @@ const signUpApp = async ({ values }: { values: unknown }) => {
     const response = await services.auth.signUp(values as UserAuthType, toast)
 
     if (response?.user) userStore.user = response.user
+
+    showConfirmModal.value = true
   } catch (error) {
     console.error(error)
   } finally {
