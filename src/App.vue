@@ -1,4 +1,5 @@
 <template>
+  <Sidebar v-if="route.path !== '/auth'" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
       <component :is="Component" />
@@ -8,9 +9,14 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
+
 import Toast from 'primevue/toast'
+import Sidebar from './components/app/Sidebar.vue'
+
+const route = useRoute()
 </script>
+
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
