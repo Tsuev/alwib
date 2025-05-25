@@ -1,6 +1,21 @@
 @import "tailwindcss";
 
+:root {
+  --body-bg: var(--p-surface-50);
+  --primary-color: var(--p-primary-100)
+}
+
+:root {
+  --body-bg: var(--p-surface-950);
+}
+
 #app {
   display: grid;
   grid-template-columns: 72px 1fr;
+  width: 100%;
+  height: 100vh;
+}
+
+body {
+  background-color: var(--body-bg);
 }

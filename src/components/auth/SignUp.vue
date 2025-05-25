@@ -1,9 +1,26 @@
 <template>
   <Form @submit="signUpApp">
     <h2 class="text-2xl mb-3 text-center">Регистрация</h2>
-    <InputText class="mb-3" name="nickname" type="text" placeholder="Никнейм" fluid required />
-    <InputText class="mb-3" name="email" type="email" placeholder="Почта" fluid required />
-    <InputText class="mb-5" name="password" type="password" placeholder="Пароль" fluid required />
+    <FloatLabel variant="on" class="mb-3 w-100">
+      <InputText id="email" name="email" type="email" fluid required />
+      <label for="email">Почта</label>
+    </FloatLabel>
+    <FloatLabel variant="on" class="mb-3 w-100">
+      <Password
+        name="password"
+        promptLabel="Введите пароль"
+        weakLabel="Слишком простой"
+        mediumLabel="Хороший"
+        strongLabel="Отличный"
+        toggleMask
+        fluid
+      />
+      <label for="passwod">Придумайте пароль</label>
+    </FloatLabel>
+    <FloatLabel variant="on" class="mb-3 w-100">
+      <InputText id="nickname" name="nickname" type="text" fluid required />
+      <label for="nickname">Придумайте имя</label>
+    </FloatLabel>
     <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading />
     <div
       class="mt-3 text-right text-green-300 font-semibold cursor-pointer"
@@ -26,9 +43,11 @@
 import { ref } from 'vue'
 
 import InputText from 'primevue/inputtext'
+import FloatLabel from 'primevue/floatlabel'
 import { Form } from '@primevue/forms'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
+import Password from 'primevue/password'
 
 import services from '@/services/services'
 

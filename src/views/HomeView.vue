@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-screen flex flex-col items-center justify-center"></div>
+  <div class="flex flex-col items-center justify-center">Домашняя страница</div>
 </template>
 
 <script setup lang="ts"></script>

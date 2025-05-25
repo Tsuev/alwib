@@ -1,10 +1,6 @@
 <template>
   <Sidebar v-if="route.path !== '/auth'" />
-  <router-view v-slot="{ Component }">
-    <transition name="fade">
-      <component :is="Component" />
-    </transition>
-  </router-view>
+  <RouterView />
   <Toast />
 </template>
 
@@ -17,14 +13,4 @@ import Sidebar from './components/app/Sidebar.vue'
 const route = useRoute()
 </script>
 
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
+<style scoped></style>

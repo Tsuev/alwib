@@ -1,8 +1,14 @@
 <template>
   <Form @submit="login">
     <h2 class="text-2xl mb-3 text-center">Войти</h2>
-    <InputText class="mb-3" name="email" type="email" placeholder="Почта" fluid required />
-    <InputText class="mb-5" name="password" type="password" placeholder="Пароль" fluid required />
+    <FloatLabel variant="on" class="mb-3 w-100">
+      <InputText id="email" name="email" type="email" fluid required />
+      <label for="email">Почта</label>
+    </FloatLabel>
+    <FloatLabel variant="on" class="mb-3 w-100">
+      <Password name="password" :feedback="false" toggleMask fluid />
+      <label for="passwod">Пароль</label>
+    </FloatLabel>
     <Button type="submit" severity="primary" label="Войти" fluid :loading />
     <div
       class="mt-3 text-right text-green-300 font-semibold cursor-pointer"
@@ -19,6 +25,8 @@ import { ref } from 'vue'
 import InputText from 'primevue/inputtext'
 import { Form } from '@primevue/forms'
 import Button from 'primevue/button'
+import FloatLabel from 'primevue/floatlabel'
+import Password from 'primevue/password'
 
 import services from '@/services/services'
 

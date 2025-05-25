@@ -7,10 +7,8 @@
           <OverlayBadge value="alpha" severity="info" size="small">
             <h2 class="text-xl mb-5">Alwib Workspace</h2>
           </OverlayBadge>
-          <!-- <Transition mode="out-in"> -->
           <SignUp v-if="!isLogin" @switch-to-login="isLogin = true" />
           <Login v-else @switch-to-signup="isLogin = false" />
-          <!-- </Transition> -->
         </div>
       </template>
     </Card>

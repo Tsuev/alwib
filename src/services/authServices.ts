@@ -52,7 +52,7 @@ const login = async (
   }
 }
 
-const getUser = async (toast: ToastServiceMethods) => {
+const getUser = async (toast?: ToastServiceMethods) => {
   try {
     const {
       data: { user },
@@ -63,12 +63,14 @@ const getUser = async (toast: ToastServiceMethods) => {
 
     return user
   } catch (error: any) {
-    toast.add({
-      severity: 'error',
-      summary: 'Ошибка получения данных',
-      detail: error?.message,
-      life: 3000,
-    })
+    if (toast) {
+      toast.add({
+        severity: 'error',
+        summary: 'Ошибка получения данных',
+        detail: error?.message,
+        life: 3000,
+      })
+    }
   }
 }
 
