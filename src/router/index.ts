@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import tokenParse from '@/helpers/tokenParse'
-import services from '@/services/services'
+// import services from '@/services/services'
 
 import HomeView from '../views/HomeView.vue'
 import AiView from '@/views/AiView.vue'
