@@ -68,7 +68,9 @@ const signUpApp = async ({ values }: { values: unknown }) => {
 
     const response = await services.auth.signUp(values as UserAuthType, toast)
 
-    if (response?.user) userStore.user = response.user
+    if (response?.user) {
+      userStore.setUser(response.user)
+    }
 
     showConfirmModal.value = true
   } catch (error) {

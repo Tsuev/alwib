@@ -48,7 +48,9 @@ const login = async ({ values }: { values: unknown }) => {
 
     const response = await services.auth.login(values as UserAuthType, toast)
 
-    if (response?.user) userStore.user = response.user
+    if (response?.user) {
+      userStore.setUser(response.user)
+    }
 
     localStorage.setItem('access_token', response?.session.access_token || '')
     localStorage.setItem('refresh_token', response?.session.refresh_token || '')

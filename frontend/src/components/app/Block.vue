@@ -19,6 +19,6 @@
   border-radius: 15px;
   background-color: var(--p-surface-900);
   box-shadow: -1px 2px 20px 4px rgba(34, 60, 80, 0.2);
-  padding: 30px;
+  padding: 20px;
 }
 </style>
