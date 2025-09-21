@@ -20,15 +20,49 @@
         <i class="pi pi-download text-gray-500" style="font-size: 1.5rem"></i>
       </RouterLink>
     </div>
-    <div class="app-functions"></div>
+
+    <!-- Информация о пользователе и кнопка выхода -->
+    <div class="user-section mt-auto mb-3">
+      <div
+        v-if="user"
+        class="user-info mb-2 p-2 rounded"
+        style="background-color: var(--p-surface-800)"
+      >
+        <div class="text-sm text-gray-300">{{ user.email }}</div>
+        <div class="text-xs text-gray-500">{{ user.role }}</div>
+      </div>
+      <button
+        @click="handleLogout"
+        class="menu-item logout-btn"
+        v-tooltip.right="'Выйти'"
+        style="width: 100%; justify-content: center"
+      >
+        <i class="pi pi-sign-out text-gray-500" style="font-size: 1.5rem"></i>
+      </button>
+    </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useAuth } from '@/composables/useAuth'
+import { useRouter } from 'vue-router'
+
+const { user, logout } = useAuth()
+const router = useRouter()
+
+const handleLogout = async () => {
+  await logout()
+  router.push('/auth')
+}
+</script>
 
 <style lang="scss" scoped>
 .sidebar {
   background-color: var(--p-surface-900);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
   .logo {
     border-bottom: 1px solid var(--p-surface-800);
   }
@@ -41,6 +75,11 @@
       width: 48px;
       height: 48px;
       transition-duration: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: none;
 
       &:hover {
         transition-duration: 0.3s;
@@ -49,6 +88,13 @@
           color: var(--p-white-100);
         }
       }
+    }
+  }
+
+  .user-section {
+    .logout-btn {
+      width: 100% !important;
+      height: 48px;
     }
   }
 }

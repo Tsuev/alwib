@@ -1,15 +1,9 @@
 import axios from 'axios'
+import { useUserStore } from '@/stores/userStore'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL, // from .env files
-})
-
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
+  withCredentials: true, // Включаем отправку cookies
 })
 
 axiosInstance.interceptors.response.use(
@@ -17,6 +11,9 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       console.error('Unauthorized, logging out...')
+      // Очищаем стор пользователя при 401 ошибке
+      const userStore = useUserStore()
+      userStore.clearUser()
     }
     return Promise.reject(error)
   },

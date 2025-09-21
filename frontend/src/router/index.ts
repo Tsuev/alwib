@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import tokenParse from '@/helpers/tokenParse'
-// import services from '@/services/services'
+import { useUserStore } from '@/stores/userStore'
 
 import HomeView from '../views/HomeView.vue'
 import AiView from '@/views/AiView.vue'
@@ -15,43 +14,55 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/vpn',
       name: 'vpn',
       component: VpnView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/ai',
       name: 'ai',
       component: AiView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/downloader',
       name: 'downloader',
       component: DownloaderView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/auth',
       name: 'auth',
       component: AuthView,
+      meta: { requiresGuest: true },
     },
   ],
 })
 
-router.beforeEach(async (to) => {
-  if (to?.hash.includes('access_token')) {
-    const { access_token, refresh_token } = tokenParse(to?.hash)
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
 
-    if (access_token && refresh_token) {
-      localStorage.setItem('access_token', access_token)
-      localStorage.setItem('refresh_token', refresh_token)
-      return { name: 'home' }
+  // Если маршрут требует авторизации
+  if (to.meta.requiresAuth) {
+    if (!userStore.isAuthenticated) {
+      next({ name: 'auth' })
+      return
     }
   }
-  if (!localStorage.getItem('access_token') && to.name !== 'auth') {
-    return { name: 'auth' }
+
+  // Если маршрут только для гостей (например, страница входа)
+  if (to.meta.requiresGuest) {
+    if (userStore.isAuthenticated) {
+      next({ name: 'home' })
+      return
+    }
   }
+
+  next()
 })
 
 export default router

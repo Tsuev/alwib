@@ -1,117 +1,170 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { UserAuthType } from '@/types/AuthTypes'
+import axios from '@/plugins/axios'
+import type {
+  RegisterDto,
+  LoginDto,
+  AuthResponse,
+  ProfileResponse,
+  VerifyResponse,
+} from '@/types/AuthTypes'
 import { type ToastServiceMethods } from 'primevue/toastservice'
-import type { User } from '@/stores/userStore'
 
-// Проходная авторизация - всегда успешная
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const signUp = async ({ email, password, nickname }: UserAuthType, toast: ToastServiceMethods) => {
+interface AxiosError {
+  response?: {
+    data?: {
+      message?: string
+    }
+  }
+}
+
+const getErrorMessage = (error: unknown, defaultMessage: string): string => {
+  const axiosError = error as AxiosError
+  return axiosError?.response?.data?.message || defaultMessage
+}
+
+const register = async (
+  registerDto: RegisterDto,
+  toast: ToastServiceMethods,
+): Promise<AuthResponse | null> => {
   try {
-    // Имитируем задержку сети
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Создаем фиктивного пользователя
-    const user: User = {
-      id: `user_${Date.now()}`,
-      email,
-      nickname,
-    }
-
-    // Создаем фиктивную сессию
-    const session = {
-      access_token: `fake_token_${Date.now()}`,
-      refresh_token: `fake_refresh_${Date.now()}`,
-      expires_in: 3600,
-      token_type: 'bearer',
-    }
+    const response = await axios.post<AuthResponse>('/auth/register', registerDto, {
+      withCredentials: true, // Важно для получения HTTP-only cookies
+    })
 
     toast.add({
       severity: 'success',
       summary: 'Регистрация успешна',
-      detail: 'Добро пожаловать!',
+      detail: response.data.message,
       life: 3000,
     })
 
-    return { session, user }
-  } catch (error: any) {
+    return response.data
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error, 'Ошибка регистрации')
+
     toast.add({
       severity: 'error',
       summary: 'Ошибка регистрации',
-      detail: error?.message,
+      detail: errorMessage,
       life: 3000,
     })
+
+    return null
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const login = async (
-  { email, password }: Omit<UserAuthType, 'nickname'>,
+  loginDto: LoginDto,
   toast: ToastServiceMethods,
-) => {
+): Promise<AuthResponse | null> => {
   try {
-    // Имитируем задержку сети
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Создаем фиктивного пользователя
-    const user: User = {
-      id: `user_${Date.now()}`,
-      email,
-      nickname: email.split('@')[0], // Используем часть email как никнейм
-    }
-
-    // Создаем фиктивную сессию
-    const session = {
-      access_token: `fake_token_${Date.now()}`,
-      refresh_token: `fake_refresh_${Date.now()}`,
-      expires_in: 3600,
-      token_type: 'bearer',
-    }
+    const response = await axios.post<AuthResponse>('/auth/login', loginDto, {
+      withCredentials: true, // Важно для получения HTTP-only cookies
+    })
 
     toast.add({
       severity: 'success',
       summary: 'Вход выполнен',
-      detail: 'Добро пожаловать!',
+      detail: response.data.message,
       life: 3000,
     })
 
-    return { session, user }
-  } catch (error: any) {
+    return response.data
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error, 'Ошибка входа')
+
     toast.add({
       severity: 'error',
       summary: 'Ошибка входа',
-      detail: error?.message,
+      detail: errorMessage,
       life: 3000,
     })
+
+    return null
   }
 }
 
-const getUser = async (toast?: ToastServiceMethods) => {
+const logout = async (toast: ToastServiceMethods): Promise<boolean> => {
   try {
-    // Проверяем токен в localStorage
-    const token = localStorage.getItem('access_token')
+    await axios.post(
+      '/auth/logout',
+      {},
+      {
+        withCredentials: true,
+      },
+    )
 
-    if (!token) {
-      return null
-    }
+    toast.add({
+      severity: 'success',
+      summary: 'Выход выполнен',
+      detail: 'Вы успешно вышли из системы',
+      life: 3000,
+    })
 
-    // Возвращаем фиктивного пользователя
-    const user: User = {
-      id: 'current_user',
-      email: 'user@example.com',
-      nickname: 'Пользователь',
-    }
+    return true
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error, 'Ошибка выхода')
 
-    return user
-  } catch (error: any) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка выхода',
+      detail: errorMessage,
+      life: 3000,
+    })
+
+    return false
+  }
+}
+
+const getProfile = async (toast?: ToastServiceMethods): Promise<ProfileResponse | null> => {
+  try {
+    const response = await axios.get<ProfileResponse>('/auth/profile', {
+      withCredentials: true,
+    })
+
+    return response.data
+  } catch (error: unknown) {
     if (toast) {
+      const errorMessage = getErrorMessage(error, 'Ошибка получения профиля')
+
       toast.add({
         severity: 'error',
         summary: 'Ошибка получения данных',
-        detail: error?.message,
+        detail: errorMessage,
         life: 3000,
       })
     }
+
+    return null
   }
 }
 
-export default { signUp, login, getUser }
+const verifyToken = async (toast?: ToastServiceMethods): Promise<VerifyResponse | null> => {
+  try {
+    const response = await axios.get<VerifyResponse>('/auth/verify', {
+      withCredentials: true,
+    })
+
+    return response.data
+  } catch (error: unknown) {
+    if (toast) {
+      const errorMessage = getErrorMessage(error, 'Токен недействителен')
+
+      toast.add({
+        severity: 'error',
+        summary: 'Ошибка проверки токена',
+        detail: errorMessage,
+        life: 3000,
+      })
+    }
+
+    return null
+  }
+}
+
+export default {
+  register,
+  login,
+  logout,
+  getProfile,
+  verifyToken,
+}

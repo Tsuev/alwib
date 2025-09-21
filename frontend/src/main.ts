@@ -13,6 +13,8 @@ import { definePreset } from '@primeuix/themes'
 
 import App from './App.vue'
 import router from './router'
+import { useAuth } from './composables/useAuth'
+
 const app = createApp(App)
 
 app.use(createPinia())
@@ -69,4 +71,9 @@ app.use(PrimeVue, {
 
 app.directive('tooltip', Tooltip)
 
+// Инициализируем авторизацию после монтирования приложения
 app.mount('#app')
+
+// Инициализируем авторизацию
+const { initializeAuth } = useAuth()
+initializeAuth()

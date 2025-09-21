@@ -15,13 +15,9 @@
         toggleMask
         fluid
       />
-      <label for="passwod">Придумайте пароль</label>
+      <label for="password">Придумайте пароль</label>
     </FloatLabel>
-    <FloatLabel variant="on" class="mb-3 w-100">
-      <InputText id="nickname" name="nickname" type="text" fluid required />
-      <label for="nickname">Придумайте имя</label>
-    </FloatLabel>
-    <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading />
+    <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading="loading" />
     <div
       class="mt-3 text-right text-green-300 font-semibold cursor-pointer"
       @click="$emit('switch-to-login')"
@@ -29,14 +25,6 @@
       Войти в аккаунт
     </div>
   </Form>
-  <Dialog
-    v-model:visible="showConfirmModal"
-    modal
-    header="Подтверждение почты"
-    :style="{ width: '25rem' }"
-  >
-    Мы отправили письмо на вашу почту. Пройдите по ссылке и подтвердите свою почту.
-  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -46,33 +34,32 @@ import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
 import { Form } from '@primevue/forms'
 import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
 import Password from 'primevue/password'
 
-import services from '@/services/services'
+import authServices from '@/services/authServices'
 
-import type { UserAuthType } from '@/types/AuthTypes'
+import type { RegisterDto } from '@/types/AuthTypes'
 
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'primevue/usetoast'
+import { useRouter } from 'vue-router'
 
 const toast = useToast()
 const userStore = useUserStore()
+const router = useRouter()
 
 const loading = ref(false)
-const showConfirmModal = ref(false)
 
 const signUpApp = async ({ values }: { values: unknown }) => {
   try {
     loading.value = true
 
-    const response = await services.auth.signUp(values as UserAuthType, toast)
+    const response = await authServices.register(values as RegisterDto, toast)
 
     if (response?.user) {
       userStore.setUser(response.user)
+      router.push({ name: 'home' })
     }
-
-    showConfirmModal.value = true
   } catch (error) {
     console.error(error)
   } finally {
