@@ -21,16 +21,7 @@
       </RouterLink>
     </div>
 
-    <!-- Информация о пользователе и кнопка выхода -->
-    <div class="user-section mt-auto mb-3">
-      <div
-        v-if="user"
-        class="user-info mb-2 p-2 rounded"
-        style="background-color: var(--p-surface-800)"
-      >
-        <div class="text-sm text-gray-300">{{ user.email }}</div>
-        <div class="text-xs text-gray-500">{{ user.role }}</div>
-      </div>
+    <div class="exit">
       <button
         @click="handleLogout"
         class="menu-item logout-btn"
@@ -47,7 +38,7 @@
 import { useAuth } from '@/composables/useAuth'
 import { useRouter } from 'vue-router'
 
-const { user, logout } = useAuth()
+const { logout } = useAuth()
 const router = useRouter()
 
 const handleLogout = async () => {
@@ -91,10 +82,16 @@ const handleLogout = async () => {
     }
   }
 
-  .user-section {
+  .exit {
+    margin-top: auto;
+    margin-bottom: 24px;
     .logout-btn {
-      width: 100% !important;
-      height: 48px;
+      cursor: pointer;
+      &:hover {
+        i {
+          color: red;
+        }
+      }
     }
   }
 }
