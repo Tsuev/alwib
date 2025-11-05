@@ -28,10 +28,7 @@
       @click="visible = true"
     />
 
-    <div
-      class="mt-3 text-right text-green-300 font-semibold cursor-pointer"
-      @click="$emit('switch-to-login')"
-    >
+    <div class="resend-link" @click="switchToLogin">
       Войти в аккаунт
     </div>
   </Form>
@@ -44,15 +41,15 @@
     :style="{ width: '25rem' }"
   >
     <template #header>
-      <h3 class="text-center w-full text-lg font-semibold leading-snug">
+      <h3 class="header-title">
         Введите код подтверждения
       </h3>
     </template>
 
-    <div class="flex flex-col items-center gap-3 mt-4 mb-4">
+    <div class="content-wrapper">
       <InputOtp name="passcode" />
 
-      <div v-if="timer > 0" class="text-gray-400 text-sm font-medium mt-2">
+      <div v-if="isShowtime" class="text-gray-400 text-sm font-medium mt-2">
         Повторная отправка через 
         <span class="text-white">{{ formatTime(timer) }}</span>
       </div>
@@ -72,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext'
@@ -98,6 +95,16 @@ const timer = ref(0)
 const resendAttempts = ref(0)
 let timerInterval: number | undefined
 
+const isShowtime = computed(() => timer.value > 0)
+
+const emit = defineEmits<{
+  (e: 'switch-to-login'): void;
+}>()
+
+const switchToLogin = () => {
+  emit('switch-to-login')
+}
+
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
@@ -107,7 +114,7 @@ const formatTime = (seconds: number) => {
 const startTimer = (duration: number) => {
   timer.value = duration
   clearInterval(timerInterval)
-  timerInterval = window.setInterval(() => {
+  timerInterval = setInterval(() => {
     if (timer.value > 0) {
       timer.value--
     } else {
@@ -157,7 +164,28 @@ const requestCodeAgain = () => {
   padding: var(--p-dialog-header-padding);
 }
 
-.text-gray-400 {
-  color: #9ca3af;
+.header-title {
+  text-align: center;
+  width: 100%;
+  font-size: 1.125rem; 
+  font-weight: 600;
+  line-height: 1.375rem;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem; 
+  margin-top: 1rem; 
+  margin-bottom: 1rem;
+}
+
+.resend-link {
+  margin-top: 0.75rem; 
+  text-align: right;
+  color: rgb(134 239 172);
+  font-weight: 600; 
+  cursor: pointer;
 }
 </style>
