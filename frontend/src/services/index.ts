@@ -1,4 +1,6 @@
 import axios from 'axios'
+import authServices from './authServices'
+
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL, // from .env files
@@ -19,7 +21,10 @@ axiosInstance.interceptors.response.use(
       console.error('Unauthorized, logging out...')
     }
     return Promise.reject(error)
-  },
+  }
 )
 
-export default axiosInstance
+export {
+  axiosInstance,
+  authServices,
+}

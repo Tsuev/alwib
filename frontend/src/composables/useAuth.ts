@@ -1,11 +1,12 @@
 import { onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
-import authServices from '@/services/authServices'
 import { useToast } from 'primevue/usetoast'
+import { useServices } from './useServices'
 
 export const useAuth = () => {
   const userStore = useUserStore()
   const toast = useToast()
+  const { authServices } = useServices()
 
   const initializeAuth = async () => {
     try {
