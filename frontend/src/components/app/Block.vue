@@ -16,9 +16,6 @@
 
 <style lang="scss" scoped>
 .block {
-  border-radius: 15px;
-  background-color: var(--p-surface-900);
-  box-shadow: -1px 2px 20px 4px rgba(34, 60, 80, 0.2);
-  padding: 20px;
+  @apply rounded-2xl bg-slate-900/80 p-6 shadow-lg shadow-black/20;
 }
 </style>
