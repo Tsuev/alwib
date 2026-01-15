@@ -59,8 +59,15 @@
 | `S3_ENDPOINT` | Endpoint S3 (Yandex Cloud) |
 | `S3_ACCESS_KEY` | Access key |
 | `S3_SECRET_KEY` | Secret key |
-| `OAUTH_GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `OAUTH_GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `GOOGLE_CALLBACK_URL` | Google OAuth callback URL |
+| `FRONTEND_URL` | URL фронтенда для редиректа после OAuth |
+| `SMTP_HOST` | SMTP host (например, Yandex) |
+| `SMTP_PORT` | SMTP порт |
+| `SMTP_USER` | SMTP логин |
+| `SMTP_PASS` | SMTP пароль |
+| `SMTP_FROM` | Email отправителя |
 
 ## Домены
 

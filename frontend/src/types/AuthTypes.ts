@@ -13,6 +13,15 @@ export interface LoginDto {
   password: string
 }
 
+export interface RequestOtpDto {
+  email: string
+}
+
+export interface VerifyOtpDto {
+  email: string
+  code: string
+}
+
 export interface User {
   id: number
   email: string
@@ -21,6 +30,11 @@ export interface User {
 }
 
 export interface AuthResponse {
+  message: string
+  user: User
+}
+
+export interface RegisterResponse {
   message: string
   user: User
 }

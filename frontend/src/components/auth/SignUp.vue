@@ -19,13 +19,16 @@
       <label for="password">Придумайте пароль</label>
     </FloatLabel>
 
-    <Button 
-      type="submit" 
-      severity="primary" 
-      label="Зарегистрироваться" 
-      fluid 
-      :loading="loading" 
-      @click="visible = true"
+    <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading="loading" />
+
+    <Button
+      type="button"
+      severity="secondary"
+      label="Продолжить с Google"
+      outlined
+      fluid
+      class="mt-2"
+      @click="loginWithGoogle"
     />
 
     <div class="resend-link" @click="switchToLogin">
@@ -41,16 +44,23 @@
     :style="{ width: '25rem' }"
   >
     <template #header>
-      <h3 class="header-title">
-        Введите код подтверждения
-      </h3>
+      <h3 class="header-title">Введите код подтверждения</h3>
     </template>
 
     <div class="content-wrapper">
-      <InputOtp name="passcode" />
+      <InputOtp v-model="otpCode" name="passcode" />
+
+      <Button
+        type="button"
+        label="Подтвердить"
+        severity="primary"
+        class="w-full"
+        :loading="otpLoading"
+        @click="confirmOtp"
+      />
 
       <div v-if="isShowtime" class="text-gray-400 text-sm font-medium mt-2">
-        Повторная отправка через 
+        Повторная отправка через
         <span class="text-white">{{ formatTime(timer) }}</span>
       </div>
 
@@ -71,13 +81,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-import Dialog from 'primevue/dialog';
+import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
 import { Form } from '@primevue/forms'
 import Button from 'primevue/button'
 import Password from 'primevue/password'
-import InputOtp from 'primevue/inputotp';
+import InputOtp from 'primevue/inputotp'
 
 import authServices from '@/services/authServices'
 import type { RegisterDto } from '@/types/AuthTypes'
@@ -90,19 +100,27 @@ const userStore = useUserStore()
 const router = useRouter()
 
 const loading = ref(false)
+const otpLoading = ref(false)
 const visible = ref(false)
 const timer = ref(0)
 const resendAttempts = ref(0)
+const otpCode = ref('')
+const pendingEmail = ref('')
 let timerInterval: number | undefined
 
 const isShowtime = computed(() => timer.value > 0)
 
 const emit = defineEmits<{
-  (e: 'switch-to-login'): void;
+  (e: 'switch-to-login'): void
 }>()
 
 const switchToLogin = () => {
   emit('switch-to-login')
+}
+
+const loginWithGoogle = () => {
+  const apiBase = import.meta.env.VITE_API_BASE_URL
+  window.location.href = `${apiBase}/auth/google`
 }
 
 const formatTime = (seconds: number) => {
@@ -126,10 +144,13 @@ const startTimer = (duration: number) => {
 const signUpApp = async ({ values }: { values: unknown }) => {
   try {
     loading.value = true
-    const response = await authServices.register(values as RegisterDto, toast)
+    const payload = values as RegisterDto
+    const response = await authServices.register(payload, toast)
     if (response?.user) {
-      userStore.setUser(response.user)
-      router.push({ name: 'home' })
+      pendingEmail.value = payload.email
+      visible.value = true
+      otpCode.value = ''
+      startTimer(60)
     }
   } catch (error) {
     console.error(error)
@@ -138,18 +159,52 @@ const signUpApp = async ({ values }: { values: unknown }) => {
   }
 }
 
-const requestCodeAgain = () => {
+const confirmOtp = async () => {
+  if (!pendingEmail.value || !otpCode.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Введите код',
+      detail: 'Код подтверждения обязателен',
+      life: 3000,
+    })
+    return
+  }
+
+  try {
+    otpLoading.value = true
+    const response = await authServices.verifyOtp(
+      { email: pendingEmail.value, code: otpCode.value },
+      toast,
+    )
+    if (response?.user) {
+      userStore.setUser(response.user)
+      visible.value = false
+      router.push({ name: 'home' })
+    }
+  } catch (error) {
+    console.error(error)
+  } finally {
+    otpLoading.value = false
+  }
+}
+
+const requestCodeAgain = async () => {
+  if (!pendingEmail.value) {
+    return
+  }
+
+  const sent = await authServices.requestOtp({ email: pendingEmail.value }, toast)
+
+  if (!sent) {
+    return
+  }
+
   resendAttempts.value++
 
-  let duration = 60 
-  if (resendAttempts.value === 2) duration = 300 
-  else if (resendAttempts.value === 3) duration = 600 
-  else if (resendAttempts.value >= 4) duration = 900 
-  toast.add({
-    severity: 'info',
-    summary: `Код повторно отправлен (ожидание ${formatTime(duration)})`,
-    life: 3000
-  })
+  let duration = 60
+  if (resendAttempts.value === 2) duration = 300
+  else if (resendAttempts.value === 3) duration = 600
+  else if (resendAttempts.value >= 4) duration = 900
 
   startTimer(duration)
 }
@@ -167,7 +222,7 @@ const requestCodeAgain = () => {
 .header-title {
   text-align: center;
   width: 100%;
-  font-size: 1.125rem; 
+  font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.375rem;
 }
@@ -176,16 +231,16 @@ const requestCodeAgain = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem; 
-  margin-top: 1rem; 
+  gap: 0.75rem;
+  margin-top: 1rem;
   margin-bottom: 1rem;
 }
 
 .resend-link {
-  margin-top: 0.75rem; 
+  margin-top: 0.75rem;
   text-align: right;
   color: rgb(134 239 172);
-  font-weight: 600; 
+  font-weight: 600;
   cursor: pointer;
 }
 </style>

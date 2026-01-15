@@ -10,6 +10,17 @@
       <label for="password">Пароль</label>
     </FloatLabel>
     <Button type="submit" severity="primary" label="Войти" fluid :loading="loading" />
+
+    <Button
+      type="button"
+      severity="secondary"
+      label="Войти через Google"
+      outlined
+      fluid
+      class="mt-2"
+      @click="loginWithGoogle"
+    />
+
     <div
       class="mt-3 text-right text-green-300 font-semibold cursor-pointer"
       @click="$emit('switch-to-signup')"
@@ -41,6 +52,11 @@ const userStore = useUserStore()
 const router = useRouter()
 
 const loading = ref(false)
+
+const loginWithGoogle = () => {
+  const apiBase = import.meta.env.VITE_API_BASE_URL
+  window.location.href = `${apiBase}/auth/google`
+}
 
 const login = async ({ values }: { values: unknown }) => {
   try {
