@@ -1,34 +1,34 @@
 <template>
   <div class="sidebar px-3">
-    <div class="logo pt-2 pb-5 mb-5">
-      <img src="/alwib.png" width="54" />
+    <div class="logo mb-5 flex items-center gap-3 border-b border-slate-800 pb-5 pt-2">
+      <img src="/alwib.png" width="42" />
+      <div class="text-sm font-semibold text-slate-200">Alwib Workspace</div>
     </div>
     <div class="nav flex flex-col gap-2">
       <RouterLink to="/" class="menu-item" v-tooltip.right="'Главная'">
-        <i class="pi pi-home text-gray-500" style="font-size: 1.5rem"></i>
+        <i class="pi pi-home text-2xl text-slate-400"></i>
       </RouterLink>
 
       <RouterLink to="/vpn" class="menu-item" v-tooltip.right="'VPN'">
-        <i class="pi pi-globe text-gray-500" style="font-size: 1.5rem"></i>
+        <i class="pi pi-globe text-2xl text-slate-400"></i>
       </RouterLink>
 
       <RouterLink to="/ai" class="menu-item" v-tooltip.right="'ИИ-ассистенты'">
-        <i class="pi pi-microchip-ai text-gray-500" style="font-size: 1.5rem"></i>
+        <i class="pi pi-microchip-ai text-2xl text-slate-400"></i>
       </RouterLink>
 
       <RouterLink to="/downloader" class="menu-item" v-tooltip.right="'Загрузчик'">
-        <i class="pi pi-download text-gray-500" style="font-size: 1.5rem"></i>
+        <i class="pi pi-download text-2xl text-slate-400"></i>
       </RouterLink>
     </div>
 
     <div class="exit">
       <button
         @click="handleLogout"
-        class="menu-item logout-btn"
+        class="menu-item logout-btn w-full justify-center"
         v-tooltip.right="'Выйти'"
-        style="width: 100%; justify-content: center"
       >
-        <i class="pi pi-sign-out text-gray-500" style="font-size: 1.5rem"></i>
+        <i class="pi pi-sign-out text-2xl text-slate-400"></i>
       </button>
     </div>
   </div>
@@ -49,61 +49,42 @@ const handleLogout = async () => {
 
 <style lang="scss" scoped>
 .sidebar {
-  background-color: var(--p-surface-900);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  @apply flex h-screen flex-col bg-slate-950;
+}
 
-  .logo {
-    border-bottom: 1px solid var(--p-surface-800);
-  }
+.nav {
+  .menu-item {
+    @apply flex h-12 w-12 items-center justify-center rounded-md border-none bg-transparent p-3 transition duration-300;
 
-  .nav {
-    .menu-item {
-      padding: 12px;
-      cursor: pointer;
-      border-radius: 5px;
-      width: 48px;
-      height: 48px;
-      transition-duration: 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      background: none;
+    &:hover {
+      @apply bg-slate-800;
 
-      &:hover {
-        transition-duration: 0.3s;
-        background-color: var(--p-surface-800);
-        i {
-          color: var(--p-white-100);
-        }
+      i {
+        @apply text-white;
       }
     }
   }
+}
 
-  .exit {
-    margin-top: auto;
-    margin-bottom: 24px;
-    .logout-btn {
-      cursor: pointer;
-      &:hover {
-        i {
-          color: red;
-        }
+.exit {
+  @apply mt-auto mb-6;
+
+  .logout-btn {
+    @apply cursor-pointer;
+
+    &:hover {
+      i {
+        @apply text-red-400;
       }
     }
   }
 }
 
 .router-link-exact-active {
-  background: #000000;
-  background: linear-gradient(135deg, #2c3e50, #1a1a2e);
-  box-shadow:
-    3px 3px 5px rgba(0, 0, 0, 0.3),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.5);
+  @apply bg-gradient-to-br from-slate-700 to-slate-900 shadow-lg shadow-black/40;
+
   i {
-    color: var(--p-primary-500);
+    @apply text-primary-400;
   }
 }
 </style>
