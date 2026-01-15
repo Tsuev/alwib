@@ -17,6 +17,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/preview',
+      name: 'preview',
+      component: HomeView,
+    },
+    {
       path: '/vpn',
       name: 'vpn',
       component: VpnView,

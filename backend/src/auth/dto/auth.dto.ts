@@ -36,3 +36,30 @@ export class LoginDto {
   @IsString()
   password: string;
 }
+
+export class RequestOtpDto {
+  @ApiProperty({
+    description: 'Email пользователя',
+    example: 'user@example.com',
+    format: 'email',
+  })
+  @IsEmail()
+  email: string;
+}
+
+export class VerifyOtpDto {
+  @ApiProperty({
+    description: 'Email пользователя',
+    example: 'user@example.com',
+    format: 'email',
+  })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    description: 'Одноразовый код',
+    example: '123456',
+  })
+  @IsString()
+  code: string;
+}
