@@ -9,5 +9,6 @@
 }
 
 body {
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   @apply bg-slate-950 text-white;
 }

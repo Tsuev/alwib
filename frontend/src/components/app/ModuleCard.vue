@@ -23,9 +23,9 @@
     </div>
 
     <div class="mt-6">
-      <RouterLink v-if="isActive" :to="route" class="w-full">
-        <Button :label="actionLabel" severity="primary" class="w-full" />
-      </RouterLink>
+  <RouterLink v-if="isActive" :to="routeTarget" class="w-full">
+    <Button :label="actionLabel" severity="primary" class="w-full" />
+  </RouterLink>
       <Button v-else :label="actionLabel" severity="secondary" class="w-full" disabled />
     </div>
   </div>
@@ -51,4 +51,5 @@ interface ModuleCardProps {
 const props = defineProps<ModuleCardProps>()
 
 const isActive = computed(() => Boolean(props.route) && !props.disabled)
+const routeTarget = computed(() => props.route ?? '/')
 </script>

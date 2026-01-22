@@ -1,23 +1,20 @@
 <template>
-  <div class="app-shell min-h-screen bg-slate-950 text-white">
-    <Sidebar v-if="showSidebar" />
-    <main :class="['w-full', showSidebar ? 'ml-0 md:ml-[110px]' : '']">
+  <div class="app-shell">
+    <AdminLayout>
       <RouterView />
-    </main>
-    <Toast />
+    </AdminLayout>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
+import { onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import { useAuth } from '@/composables/useAuth'
 
-import Toast from 'primevue/toast'
-import Sidebar from './components/app/Sidebar.vue'
-import { useUserStore } from '@/stores/userStore'
+const { initializeAuth } = useAuth()
 
-const route = useRoute()
-const userStore = useUserStore()
-
-const showSidebar = computed(() => route.path !== '/auth' && userStore.isAuthenticated)
+onMounted(() => {
+  initializeAuth()
+})
 </script>
