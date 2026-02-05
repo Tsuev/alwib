@@ -1,10 +1,20 @@
 <template>
-  <header class="header-bar px-4 md:px-8">
-    <Toolbar class="header-toolbar">
+  <header class="sticky top-0 z-20 px-4 pt-4 md:px-8">
+    <Toolbar
+      class="relative min-h-[52px] rounded-2xl border border-slate-800/70 bg-slate-950/80 px-4 py-2 shadow-lg shadow-black/30 backdrop-blur [background-image:linear-gradient(120deg,rgba(10,18,14,0.9),rgba(9,12,18,0.9))]"
+      :pt="{
+        start: { class: 'flex flex-1 items-center' },
+        center: {
+          class:
+            'static mx-auto flex items-center min-w-[220px] transform-none md:absolute md:left-1/2 md:-translate-x-1/2',
+        },
+        end: { class: 'flex flex-1 items-center justify-end' },
+      }"
+    >
       <template #start>
-        <div class="left-group">
+        <div class="flex items-center gap-3">
           <Button
-            class="menu-btn"
+            class="text-slate-200 hover:bg-slate-800/70"
             icon="pi pi-bars"
             severity="secondary"
             text
@@ -12,37 +22,39 @@
             aria-label="Открыть меню"
             @click="toggleSidebar"
           />
-          <div class="window-dots">
-            <span class="dot bg-red-400"></span>
-            <span class="dot bg-yellow-400"></span>
-            <span class="dot bg-green-400"></span>
-          </div>
         </div>
       </template>
 
       <template #center>
-        <div class="center-info">
-          <div class="balance">
-            <i class="pi pi-wallet"></i>
-            <span>{{ balanceLabel }}</span>
-          </div>
-          <div class="time">{{ timeLabel }}</div>
+        <div class="flex flex-col items-center gap-1 text-[11px] text-slate-300">
+          <div class="text-[16px] font-semibold tracking-[0.3em] text-white">{{ timeLabel }}</div>
         </div>
       </template>
 
       <template #end>
-        <div class="right-info">
-          <div class="chip">
-            <i class="pi pi-bolt"></i>
+        <div class="flex items-center gap-2 text-xs !text-slate-300 md:gap-3">
+          <div
+            class="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/70 px-2 py-1 transition md:px-3"
+          >
+            <i class="pi pi-bolt text-primary-300"></i>
             <span>Pro trial</span>
           </div>
-          <button class="chip ghost" type="button">
-            <i class="pi pi-bell"></i>
+          <button
+            class="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/70 px-2 py-1 transition hover:border-slate-700 hover:bg-slate-900/90 md:px-3"
+            type="button"
+          >
+            <i class="pi pi-bell text-primary-300"></i>
             <span>3</span>
           </button>
-          <div class="user">
-            <span class="avatar">{{ initials }}</span>
-            <span class="user-name">{{ userLabel }}</span>
+          <div class="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1">
+            <span
+              class="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-lime-300 text-[11px] font-semibold text-slate-950"
+            >
+              {{ initials }}
+            </span>
+            <span class="max-w-[90px] truncate text-xs text-slate-200 md:max-w-[120px]">
+              {{ userLabel }}
+            </span>
           </div>
         </div>
       </template>
@@ -80,124 +92,5 @@ const timeLabel = computed(() =>
 const userLabel = computed(() => userStore.user?.email ?? 'Гость')
 const initials = computed(() => (userLabel.value[0] ?? 'G').toUpperCase())
 
-const balanceLabel = computed(() => 'Баланс: 1 240 ₽')
 const toggleSidebar = () => uiStore.toggleSidebar()
 </script>
-
-<style lang="scss" scoped>
-.header-bar {
-  @apply sticky top-0 z-20 pt-4;
-}
-
-.header-toolbar {
-  @apply relative rounded-2xl border border-slate-800/70 bg-slate-950/80 px-4 py-2 shadow-lg shadow-black/30 backdrop-blur;
-  background-image: linear-gradient(120deg, rgba(10, 18, 14, 0.9), rgba(9, 12, 18, 0.9));
-  min-height: 52px;
-}
-
-:deep(.p-toolbar-start),
-:deep(.p-toolbar-center),
-:deep(.p-toolbar-end) {
-  @apply flex items-center;
-}
-
-:deep(.p-toolbar-start) {
-  @apply flex-1;
-}
-
-:deep(.p-toolbar-end) {
-  @apply flex-1 justify-end;
-}
-
-:deep(.p-toolbar-center) {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 220px;
-}
-
-.header-toolbar :deep(.p-button.p-button-text) {
-  @apply hover:bg-slate-800/70;
-}
-
-.left-group {
-  @apply flex items-center gap-3;
-}
-
-.menu-btn {
-  @apply text-slate-200;
-}
-
-.window-dots {
-  @apply flex items-center gap-2;
-
-  .dot {
-    @apply h-3 w-3 rounded-full shadow-inner;
-  }
-}
-
-.center-info {
-  @apply flex flex-col items-center gap-1 text-[11px] text-slate-300;
-
-  .balance {
-    @apply flex items-center gap-2 text-slate-200;
-
-    i {
-      @apply text-primary-400;
-    }
-  }
-
-  .time {
-    @apply text-sm font-semibold tracking-[0.3em] text-white;
-  }
-}
-
-.right-info {
-  @apply flex items-center gap-3 text-xs text-slate-300;
-
-  .chip {
-    @apply flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/70 px-3 py-1 transition;
-
-    i {
-      @apply text-primary-300;
-    }
-  }
-
-  .ghost {
-    @apply hover:border-slate-700 hover:bg-slate-900/90;
-  }
-
-  .user {
-    @apply flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-2 py-1;
-  }
-
-  .avatar {
-    @apply flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-lime-300 text-[11px] font-semibold text-slate-950;
-  }
-
-  .user-name {
-    @apply max-w-[120px] truncate text-xs text-slate-200;
-  }
-}
-
-@media (max-width: 768px) {
-  :deep(.p-toolbar-center) {
-    position: static;
-    transform: none;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .right-info {
-    @apply gap-2;
-
-    .chip {
-      @apply px-2;
-    }
-
-    .user-name {
-      @apply max-w-[90px];
-    }
-  }
-}
-</style>
