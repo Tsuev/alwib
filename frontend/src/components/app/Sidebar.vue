@@ -7,58 +7,38 @@
     class="app-sidebar"
   >
     <aside class="sidebar px-4">
-      <!-- Logo Section -->
       <div class="logo">
-        <img src="/alwib.png" width="40" alt="Alwib Logo" />
+        <img src="/alwib.png" width="40" />
         <div>
           <div class="title">Alwib</div>
           <div class="subtitle">Workspace</div>
         </div>
       </div>
 
-      <!-- Navigation Section -->
       <div class="section">
         <p class="section-title">Навигация</p>
-        <RouterLink
-          to="/"
-          class="menu-item"
-          :class="{ active: isRouteActive('/') }"
-        >
+        <RouterLink to="/" class="menu-item">
           <i class="pi pi-home"></i>
           <span>Главная</span>
         </RouterLink>
       </div>
 
-      <!-- Modules Section -->
       <div class="section">
         <p class="section-title">Модули</p>
-        <RouterLink
-          to="/vpn"
-          class="menu-item"
-          :class="{ active: isRouteActive('/vpn') }"
-        >
+        <RouterLink to="/vpn" class="menu-item">
           <i class="pi pi-shield"></i>
           <span>VPN</span>
         </RouterLink>
-        <RouterLink
-          to="/ai"
-          class="menu-item"
-          :class="{ active: isRouteActive('/ai') }"
-        >
+        <RouterLink to="/ai" class="menu-item">
           <i class="pi pi-comment"></i>
           <span>ИИ‑ассистенты</span>
         </RouterLink>
-        <RouterLink
-          to="/downloader"
-          class="menu-item"
-          :class="{ active: isRouteActive('/downloader') }"
-        >
+        <RouterLink to="/downloader" class="menu-item">
           <i class="pi pi-cloud-download"></i>
           <span>Загрузчик</span>
         </RouterLink>
       </div>
 
-      <!-- Services Section -->
       <div class="section">
         <p class="section-title">Сервисы</p>
         <button class="menu-item muted" type="button" disabled>
@@ -73,7 +53,6 @@
         </button>
       </div>
 
-      <!-- Logout Section -->
       <div class="exit">
         <button @click="handleLogout" class="menu-item logout-btn w-full" type="button">
           <i class="pi pi-sign-out"></i>
@@ -86,7 +65,7 @@
 
 <script setup lang="ts">
 import { useAuth } from '@/composables/useAuth'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import Sidebar from 'primevue/sidebar'
 import { useUiStore } from '@/stores/uiStore'
 import { storeToRefs } from 'pinia'
@@ -94,17 +73,9 @@ import { useBreakpoints } from '@/composables/useBreakpoints'
 
 const { logout } = useAuth()
 const router = useRouter()
-const route = useRoute()
 const uiStore = useUiStore()
 const { sidebarOpen } = storeToRefs(uiStore)
 const { mobile } = useBreakpoints()
-
-const isRouteActive = (path: string) => {
-  if (path === '/') {
-    return route.path === '/'
-  }
-  return route.path.startsWith(path)
-}
 
 const handleLogout = async () => {
   await logout()
@@ -163,14 +134,6 @@ const handleLogout = async () => {
       @apply text-primary-300;
     }
   }
-
-  &.active {
-    @apply border-slate-700 bg-gradient-to-br from-slate-900 to-slate-800 shadow-lg shadow-black/40 text-white;
-
-    i {
-      @apply text-primary-400;
-    }
-  }
 }
 
 .muted {
@@ -192,6 +155,14 @@ const handleLogout = async () => {
         @apply text-red-400;
       }
     }
+  }
+}
+
+.router-link-exact-active {
+  @apply border-slate-700 bg-gradient-to-br from-slate-900 to-slate-800 shadow-lg shadow-black/40 text-white;
+
+  i {
+    @apply text-primary-400;
   }
 }
 </style>
