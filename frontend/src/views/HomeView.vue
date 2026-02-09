@@ -18,7 +18,7 @@
       <Block class="lg:col-span-2">
         <template #header>
           <div class="flex items-center justify-between text-sm text-slate-400">
-            <span class="uppercase tracking-wide">Использование</span>
+            <span class="uppercase mt-2 tracking-wide">Использование</span>
             <span class="text-xs">за последние 7 дней</span>
           </div>
         </template>
@@ -65,7 +65,7 @@
             <span>Команда</span>
             <span>1 участник</span>
           </div>
-          <div class="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 text-xs text-slate-400">
+          <div class="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 text-xs text-slate-400 mb-4 sm:mb-0">
             Добавьте участников и доступы к модулям, чтобы собрать единое рабочее пространство.
           </div>
         </div>
