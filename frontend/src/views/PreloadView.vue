@@ -1,14 +1,26 @@
 <template>
-  <div class="preload">
-    <div class="glow"></div>
-    <div class="logo-wrap">
-      <img src="/alwib.png" alt="Alwib" class="logo" />
-      <span class="label">Alwib Workspace</span>
+  <div :class="styles().preload()">
+    <div :class="styles().glow()"></div>
+    <div :class="styles().logoWrap()">
+      <img src="/alwib.png" alt="Alwib" :class="styles().logo()" />
+      <span :class="styles().label()">Alwib Workspace</span>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { tv } from 'tailwind-variants'
+
+const styles = tv({
+  slots: {
+    preload: 'preload',
+    glow: 'glow',
+    logoWrap: 'logo-wrap',
+    logo: 'logo',
+    label: 'label',
+  },
+})
+</script>
 
 <style scoped lang="scss">
 .preload {

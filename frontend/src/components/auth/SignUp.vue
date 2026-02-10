@@ -1,12 +1,12 @@
 <template>
   <Form @submit="signUpApp">
-    <h2 class="text-2xl mb-3 text-center">Регистрация</h2>
-    <FloatLabel variant="on" class="mb-3 w-100">
+    <h2 :class="styles().title()">Регистрация</h2>
+    <FloatLabel variant="on" :class="styles().field()">
       <InputText id="email" name="email" type="email" fluid required />
       <label for="email">Почта</label>
     </FloatLabel>
 
-    <FloatLabel variant="on" class="mb-3 w-100">
+    <FloatLabel variant="on" :class="styles().field()">
       <Password
         name="password"
         promptLabel="Введите пароль"
@@ -19,7 +19,13 @@
       <label for="password">Придумайте пароль</label>
     </FloatLabel>
 
-    <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading="loading" />
+    <Button
+      type="submit"
+      severity="primary"
+      label="Зарегистрироваться"
+      fluid
+      :loading="loading"
+    />
 
     <Button
       type="button"
@@ -27,11 +33,11 @@
       label="Продолжить с Google"
       outlined
       fluid
-      class="mt-2"
+      :class="styles().secondaryButton()"
       @click="loginWithGoogle"
     />
 
-    <div class="resend-link" @click="switchToLogin">
+    <div :class="styles().switchLink()" @click="switchToLogin">
       Войти в аккаунт
     </div>
   </Form>
@@ -44,22 +50,22 @@
     :style="{ width: '25rem' }"
   >
     <template #header>
-      <h3 class="header-title">Введите код подтверждения</h3>
+      <h3 :class="styles().dialogTitle()">Введите код подтверждения</h3>
     </template>
 
-    <div class="content-wrapper">
+    <div :class="styles().dialogContent()">
       <InputOtp v-model="otpCode" name="passcode" />
 
       <Button
         type="button"
         label="Подтвердить"
         severity="primary"
-        class="w-full"
+        :class="styles().dialogButton()"
         :loading="otpLoading"
         @click="confirmOtp"
       />
 
-      <div v-if="isShowtime" class="text-gray-400 text-sm font-medium mt-2">
+      <div v-if="isShowtime" :class="styles().timerText()">
         Повторная отправка через
         <span class="text-white">{{ formatTime(timer) }}</span>
       </div>
@@ -71,7 +77,7 @@
         text
         size="small"
         severity="secondary"
-        class="mt-2 opacity-80"
+        :class="styles().retryButton()"
         @click="requestCodeAgain"
       />
     </div>
@@ -94,6 +100,7 @@ import type { RegisterDto } from '@/types/AuthTypes'
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'primevue/usetoast'
 import { useRouter } from 'vue-router'
+import { tv } from 'tailwind-variants'
 
 const toast = useToast()
 const userStore = useUserStore()
@@ -208,6 +215,20 @@ const requestCodeAgain = async () => {
 
   startTimer(duration)
 }
+
+const styles = tv({
+  slots: {
+    title: 'text-2xl mb-3 text-center',
+    field: 'mb-3 w-100',
+    secondaryButton: 'mt-2',
+    switchLink: 'resend-link',
+    dialogTitle: 'header-title',
+    dialogContent: 'content-wrapper',
+    dialogButton: 'w-full',
+    timerText: 'text-gray-400 text-sm font-medium mt-2',
+    retryButton: 'mt-2 opacity-80',
+  },
+})
 </script>
 
 <style lang="scss" scoped>

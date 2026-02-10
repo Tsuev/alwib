@@ -1,10 +1,10 @@
 <template>
-  <div class="app-shell flex min-h-screen bg-slate-950 text-white">
+  <div :class="styles().appShell()">
     <Sidebar v-if="showSidebar" />
     <main
       :class="[
-        'w-full flex-1 min-w-0',
-        showSidebar && uiStore.sidebarOpen ? 'lg:pl-[260px]' : '',
+        styles().main(),
+        showSidebar && uiStore.sidebarOpen ? styles().mainShift() : '',
       ]"
     >
       <RouterView />
@@ -22,6 +22,7 @@ import Sidebar from './components/app/Sidebar.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useAuth } from '@/composables/useAuth'
 import { useUiStore } from '@/stores/uiStore'
+import { tv } from 'tailwind-variants'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -34,5 +35,13 @@ const showSidebar = computed(
 
 onMounted(() => {
   initializeAuth()
+})
+
+const styles = tv({
+  slots: {
+    appShell: 'app-shell flex min-h-screen bg-slate-950 text-white',
+    main: 'w-full flex-1 min-w-0',
+    mainShift: 'lg:pl-[260px]',
+  },
 })
 </script>

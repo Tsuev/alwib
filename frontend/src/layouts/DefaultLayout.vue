@@ -1,7 +1,7 @@
 <template>
-  <div class="default-layout">
+  <div :class="styles().layout()">
     <HeaderBar />
-    <div class="content px-4 pb-10 pt-6 md:px-8">
+    <div :class="styles().content()">
       <slot></slot>
     </div>
   </div>
@@ -9,4 +9,12 @@
 
 <script setup lang="ts">
 import HeaderBar from '@/components/app/HeaderBar.vue'
+import { tv } from 'tailwind-variants'
+
+const styles = tv({
+  slots: {
+    layout: 'default-layout',
+    content: 'content px-4 pb-10 pt-6 md:px-8',
+  },
+})
 </script>
