@@ -1,12 +1,12 @@
 <template>
   <Form @submit="signUpApp">
-    <h2 :class="styles().title()">Регистрация</h2>
-    <FloatLabel variant="on" :class="styles().field()">
+    <h2 :class="title()">Регистрация</h2>
+    <FloatLabel variant="on" :class="field()">
       <InputText id="email" name="email" type="email" fluid required />
       <label for="email">Почта</label>
     </FloatLabel>
 
-    <FloatLabel variant="on" :class="styles().field()">
+    <FloatLabel variant="on" :class="field()">
       <Password
         name="password"
         promptLabel="Введите пароль"
@@ -19,13 +19,7 @@
       <label for="password">Придумайте пароль</label>
     </FloatLabel>
 
-    <Button
-      type="submit"
-      severity="primary"
-      label="Зарегистрироваться"
-      fluid
-      :loading="loading"
-    />
+    <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading="loading" />
 
     <Button
       type="button"
@@ -33,13 +27,11 @@
       label="Продолжить с Google"
       outlined
       fluid
-      :class="styles().secondaryButton()"
+      :class="secondaryButton()"
       @click="loginWithGoogle"
     />
 
-    <div :class="styles().switchLink()" @click="switchToLogin">
-      Войти в аккаунт
-    </div>
+    <div :class="switchLink()" @click="switchToLogin">Войти в аккаунт</div>
   </Form>
 
   <Dialog
@@ -50,22 +42,22 @@
     :style="{ width: '25rem' }"
   >
     <template #header>
-      <h3 :class="styles().dialogTitle()">Введите код подтверждения</h3>
+      <h3 :class="dialogTitle()">Введите код подтверждения</h3>
     </template>
 
-    <div :class="styles().dialogContent()">
+    <div :class="dialogContent()">
       <InputOtp v-model="otpCode" name="passcode" />
 
       <Button
         type="button"
         label="Подтвердить"
         severity="primary"
-        :class="styles().dialogButton()"
+        :class="dialogButton()"
         :loading="otpLoading"
         @click="confirmOtp"
       />
 
-      <div v-if="isShowtime" :class="styles().timerText()">
+      <div v-if="isShowtime" :class="timerText()">
         Повторная отправка через
         <span class="text-white">{{ formatTime(timer) }}</span>
       </div>
@@ -77,7 +69,7 @@
         text
         size="small"
         severity="secondary"
-        :class="styles().retryButton()"
+        :class="retryButton()"
         @click="requestCodeAgain"
       />
     </div>
@@ -218,17 +210,29 @@ const requestCodeAgain = async () => {
 
 const styles = tv({
   slots: {
-    title: 'text-2xl mb-3 text-center',
-    field: 'mb-3 w-100',
-    secondaryButton: 'mt-2',
-    switchLink: 'resend-link',
-    dialogTitle: 'header-title',
-    dialogContent: 'content-wrapper',
-    dialogButton: 'w-full',
-    timerText: 'text-gray-400 text-sm font-medium mt-2',
-    retryButton: 'mt-2 opacity-80',
+    title: ['text-2xl mb-3 text-center'],
+    field: ['mb-3 w-100'],
+    secondaryButton: ['mt-2'],
+    switchLink: ['resend-link'],
+    dialogTitle: ['header-title'],
+    dialogContent: ['content-wrapper'],
+    dialogButton: ['w-full'],
+    timerText: ['text-gray-400 text-sm font-medium mt-2'],
+    retryButton: ['mt-2 opacity-80'],
   },
 })
+
+const {
+  title,
+  field,
+  secondaryButton,
+  switchLink,
+  dialogTitle,
+  dialogContent,
+  dialogButton,
+  timerText,
+  retryButton,
+} = styles()
 </script>
 
 <style lang="scss" scoped>

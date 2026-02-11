@@ -1,9 +1,9 @@
 <template>
-  <div :class="styles().preload()">
-    <div :class="styles().glow()"></div>
-    <div :class="styles().logoWrap()">
-      <img src="/alwib.png" alt="Alwib" :class="styles().logo()" />
-      <span :class="styles().label()">Alwib Workspace</span>
+  <div :class="preload()">
+    <div :class="glow()"></div>
+    <div :class="logoWrap()">
+      <img src="/alwib.png" alt="Alwib" :class="logo()" />
+      <span :class="label()">Alwib Workspace</span>
     </div>
   </div>
 </template>
@@ -13,13 +13,15 @@ import { tv } from 'tailwind-variants'
 
 const styles = tv({
   slots: {
-    preload: 'preload',
-    glow: 'glow',
-    logoWrap: 'logo-wrap',
-    logo: 'logo',
-    label: 'label',
+    preload: ['preload'],
+    glow: ['glow'],
+    logoWrap: ['logo-wrap'],
+    logo: ['logo'],
+    label: ['label'],
   },
 })
+
+const { preload, glow, logoWrap, logo, label } = styles()
 </script>
 
 <style scoped lang="scss">
@@ -30,7 +32,8 @@ const styles = tv({
 .glow {
   position: absolute;
   inset: -30%;
-  background: radial-gradient(circle at 20% 20%, rgba(0, 158, 96, 0.35), transparent 45%),
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 158, 96, 0.35), transparent 45%),
     radial-gradient(circle at 80% 30%, rgba(0, 200, 100, 0.35), transparent 40%),
     radial-gradient(circle at 50% 80%, rgba(0, 120, 70, 0.45), transparent 45%);
   filter: blur(30px);

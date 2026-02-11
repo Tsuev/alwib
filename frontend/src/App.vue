@@ -1,12 +1,7 @@
 <template>
-  <div :class="styles().appShell()">
+  <div :class="appShell()">
     <Sidebar v-if="showSidebar" />
-    <main
-      :class="[
-        styles().main(),
-        showSidebar && uiStore.sidebarOpen ? styles().mainShift() : '',
-      ]"
-    >
+    <main :class="[main(), showSidebar && uiStore.sidebarOpen ? mainShift() : '']">
       <RouterView />
     </main>
     <Toast />
@@ -30,7 +25,7 @@ const { initializeAuth } = useAuth()
 const uiStore = useUiStore()
 
 const showSidebar = computed(
-  () => route.path !== '/auth' && route.path !== '/preload' && userStore.isAuthenticated
+  () => route.path !== '/auth' && route.path !== '/preload' && userStore.isAuthenticated,
 )
 
 onMounted(() => {
@@ -39,9 +34,11 @@ onMounted(() => {
 
 const styles = tv({
   slots: {
-    appShell: 'app-shell flex min-h-screen bg-slate-950 text-white',
-    main: 'w-full flex-1 min-w-0',
-    mainShift: 'lg:pl-[260px]',
+    appShell: ['app-shell flex min-h-screen bg-slate-950 text-white'],
+    main: ['w-full flex-1 min-w-0'],
+    mainShift: ['lg:pl-[260px]'],
   },
 })
+
+const { appShell, main, mainShift } = styles()
 </script>

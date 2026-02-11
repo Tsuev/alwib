@@ -1,7 +1,7 @@
 <template>
-  <div :class="styles().layout()">
+  <div :class="layout()">
     <HeaderBar />
-    <div :class="styles().content()">
+    <div :class="content()">
       <slot></slot>
     </div>
   </div>
@@ -13,8 +13,10 @@ import { tv } from 'tailwind-variants'
 
 const styles = tv({
   slots: {
-    layout: 'default-layout',
-    content: 'content px-4 pb-10 pt-6 md:px-8',
+    layout: ['default-layout'],
+    content: ['content px-4 pb-10 pt-6 md:px-8'],
   },
 })
+
+const { layout, content } = styles()
 </script>

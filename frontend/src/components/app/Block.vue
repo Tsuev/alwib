@@ -1,12 +1,12 @@
 <template>
-  <div :class="styles().block()">
-    <div v-if="$slots.header" :class="styles().header()">
+  <div :class="block()">
+    <div v-if="$slots.header" :class="header()">
       <slot name="header" />
     </div>
-    <div :class="styles().content()">
+    <div :class="content()">
       <slot />
     </div>
-    <div v-if="$slots.footer" :class="styles().footer()">
+    <div v-if="$slots.footer" :class="footer()">
       <slot name="footer" />
     </div>
   </div>
@@ -17,10 +17,12 @@ import { tv } from 'tailwind-variants'
 
 const styles = tv({
   slots: {
-    block: 'rounded-2xl p-6 shadow-lg shadow-black/20',
-    header: '',
-    content: '',
-    footer: '',
+    block: ['rounded-2xl p-6 shadow-lg shadow-black/20'],
+    header: [''],
+    content: [''],
+    footer: [''],
   },
 })
+
+const { block, header, content, footer } = styles()
 </script>
