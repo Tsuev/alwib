@@ -1,80 +1,163 @@
 <template>
   <DefaultLayout :class="layout()">
-    <header :class="header()">
-      <h1 :class="title()">Загрузчик видео</h1>
-      <p :class="lead()">
-        Скачивание контента из соцсетей через Cobalt. Поддерживаются большинство платформ.
-      </p>
-    </header>
+    <section :class="hero()">
+      <div :class="panel()">
+        <h1 :class="title()">Загрузчик контента</h1>
+        <p :class="lead()">
+          Вставьте ссылку на пост или видео. Мы подготовим скачивание через API Cobalt.
+        </p>
 
-    <section :class="sectionGrid()">
-      <div :class="card()">
-        <p :class="cardTitle()">Бесплатный лимит</p>
-        <div :class="cardValue()">1 видео / день</div>
-        <p :class="cardText()">При высокой нагрузке запросы отправляются в очередь.</p>
-      </div>
+        <form :class="downloadForm()" @submit.prevent>
+          <div :class="inputShell()">
+            <div :class="inputRow()">
+              <InputText
+                v-model="sourceUrl"
+                type="url"
+                placeholder="https://..."
+                :class="urlInput()"
+              />
+              <Button
+                :class="downloadButton()"
+                :disabled="!sourceUrl.trim()"
+              >
+                <i class="pi pi-download"></i>
+                <span :class="downloadText()">Скачать</span>
+              </Button>
+            </div>
+          </div>
+        </form>
 
-      <div :class="card()">
-        <p :class="cardTitle()">Поддержка</p>
-        <ul :class="list()">
-          <li :class="listItem()">
-            <i :class="listIcon()" aria-hidden="true"></i>
-            <span>TikTok, YouTube, Instagram, VK, X и другие.</span>
-          </li>
-          <li :class="listItem()">
-            <i :class="listIcon()" aria-hidden="true"></i>
-            <span>Планируется self-hosted режим.</span>
-          </li>
-        </ul>
-      </div>
+        <div :class="supportBlock()">
+          <p :class="supportTitle()">Поддерживаемые сервисы</p>
 
-      <div :class="card()">
-        <p :class="cardTitle()">Действия</p>
-        <Button label="Скачать видео" severity="primary" :class="actionButton()" disabled />
-        <p :class="helperText()">Модуль в разработке — готовим интеграцию Cobalt.</p>
+          <ul :class="servicesGrid()">
+            <li v-for="service in supportedServices" :key="service.name" :class="serviceChip()">
+              <img
+                :src="`https://cdn.simpleicons.org/${service.iconSlug}/e2e8f0`"
+                :alt="`${service.name} icon`"
+                :class="serviceIcon()"
+                loading="lazy"
+              />
+              <span>{{ service.name }}</span>
+            </li>
+          </ul>
+          <p :class="note()">
+            Список может отличаться на конкретном инстансе Cobalt в зависимости от конфигурации.
+          </p>
+        </div>
       </div>
     </section>
   </DefaultLayout>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import { tv } from 'tailwind-variants'
 
+const sourceUrl = ref('')
+
+const supportedServices = [
+  { name: 'YouTube', iconSlug: 'youtube' },
+  { name: 'TikTok', iconSlug: 'tiktok' },
+  { name: 'VK', iconSlug: 'vk' },
+  { name: 'Instagram', iconSlug: 'instagram' },
+  { name: 'Rutube', iconSlug: 'maildotru' },
+  { name: 'OK.ru', iconSlug: 'odnoklassniki' },
+  { name: 'Bilibili', iconSlug: 'bilibili' },
+  { name: 'Bluesky', iconSlug: 'bluesky' },
+  { name: 'Dailymotion', iconSlug: 'dailymotion' },
+  { name: 'Pinterest', iconSlug: 'pinterest' },
+  { name: 'Reddit', iconSlug: 'reddit' },
+  { name: 'Snapchat', iconSlug: 'snapchat' },
+  { name: 'SoundCloud', iconSlug: 'soundcloud' },
+  { name: 'Tumblr', iconSlug: 'tumblr' },
+  { name: 'Twitch', iconSlug: 'twitch' },
+  { name: 'X (Twitter)', iconSlug: 'x' },
+  { name: 'Vimeo', iconSlug: 'vimeo' },
+  { name: 'Xiaohongshu (RedNote)', iconSlug: 'xiaohongshu' },
+]
+
 const styles = tv({
   slots: {
-    layout: ['flex flex-col gap-8'],
-    header: ['flex flex-col gap-2'],
-    title: ['text-3xl font-semibold text-white'],
-    lead: ['text-slate-300'],
-    sectionGrid: ['grid gap-6 mt-6 lg:grid-cols-3'],
-    card: ['rounded-2xl bg-slate-900/80 p-6'],
-    cardTitle: ['text-sm uppercase tracking-wide text-slate-400'],
-    cardValue: ['mt-3 text-2xl font-semibold text-white'],
-    cardText: ['mt-3 text-sm text-slate-300'],
-    list: ['mt-3 space-y-2 text-sm text-slate-200'],
-    listItem: ['flex items-start gap-2'],
-    listIcon: ['pi pi-check-circle mt-0.5 text-primary-400'],
-    actionButton: ['mt-4 w-full'],
-    helperText: ['mt-4 text-xs text-slate-400'],
+    layout: ['min-h-full'],
+    hero: ['flex min-h-[calc(100vh-140px)] items-center justify-center'],
+    panel: [
+      'w-full max-w-5xl rounded-3xl border border-slate-800/80 bg-slate-950/70',
+      'px-5 py-8 shadow-2xl shadow-black/40 backdrop-blur md:px-10 md:py-10',
+    ],
+    title: ['text-center text-3xl font-semibold text-white md:text-4xl'],
+    lead: ['mx-auto mt-3 max-w-2xl text-center text-sm text-slate-300 md:text-base'],
+    downloadForm: ['mx-auto mt-8 w-full max-w-3xl'],
+    inputShell: ['neon-input-shell rounded-2xl p-[1px]'],
+    inputRow: [
+      'flex items-center gap-2 rounded-2xl bg-slate-950/95 p-2',
+      'ring-1 ring-slate-800/80',
+    ],
+    urlInput: ['w-full border-0 bg-transparent text-sm text-white placeholder:text-slate-500'],
+    downloadButton: ['download-action shrink-0 rounded-xl px-5'],
+    downloadText: ['hidden md:inline'],
+    supportBlock: ['mx-auto mt-7 max-w-4xl'],
+    supportTitle: ['text-center text-xs uppercase tracking-[0.22em] text-slate-400'],
+    servicesGrid: ['mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4'],
+    serviceChip: [
+      'flex items-center gap-2 rounded-xl border border-slate-800',
+      'bg-slate-900/70 px-3 py-2 text-xs text-slate-200',
+    ],
+    serviceIcon: ['h-3.5 w-3.5 shrink-0 opacity-90'],
+    note: ['mt-4 text-center text-xs text-slate-500'],
   },
 })
 
 const {
   layout,
-  header,
+  hero,
+  panel,
   title,
   lead,
-  sectionGrid,
-  card,
-  cardTitle,
-  cardValue,
-  cardText,
-  list,
-  listItem,
-  listIcon,
-  actionButton,
-  helperText,
+  downloadForm,
+  inputShell,
+  inputRow,
+  urlInput,
+  downloadButton,
+  supportBlock,
+  supportTitle,
+  servicesGrid,
+  serviceChip,
+  serviceIcon,
+  downloadText,
+  note,
 } = styles()
 </script>
+
+<style scoped>
+.neon-input-shell {
+  background:
+    linear-gradient(
+      115deg,
+      rgba(16, 185, 129, 0.9),
+      rgba(6, 182, 212, 0.85),
+      rgba(132, 204, 22, 0.9),
+      rgba(16, 185, 129, 0.9)
+    );
+  background-size: 250% 250%;
+  animation: neonFlow 12s linear infinite;
+  box-shadow:
+    0 0 8px rgba(16, 185, 129, 0.35),
+    0 0 22px rgba(6, 182, 212, 0.2);
+}
+
+@keyframes neonFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+</style>
