@@ -1,71 +1,66 @@
 <template>
-  <DefaultLayout class="flex flex-col gap-8">
-    <section class="flex flex-col gap-2">
-      <h1 class="text-3xl font-semibold text-white">Workspace Alwib</h1>
-      <p class="text-slate-300">
-        Единый доступ к сервисам: аналитика, автоматизация публикаций, VPN, ассистенты и
-        витрины. В бесплатном режиме доступны базовые лимиты, подписка открывает расширенные
-        квоты.
+  <DefaultLayout :class="layout()">
+    <section :class="header()">
+      <h1 :class="title()">Workspace Alwib</h1>
+      <p :class="lead()">
+        Единый доступ к сервисам: аналитика, автоматизация публикаций, VPN, ассистенты и витрины. В
+        бесплатном режиме доступны базовые лимиты, подписка открывает расширенные квоты.
       </p>
-      <div class="mt-3 flex flex-wrap gap-3">
+      <div :class="tagRow()">
         <Tag severity="info">SSO + Google OAuth</Tag>
         <Tag severity="success">Единая подписка</Tag>
         <Tag severity="warning">Бесплатные лимиты</Tag>
       </div>
     </section>
 
-    <section class="grid gap-6 lg:grid-cols-3">
-      <Block class="lg:col-span-2">
+    <section :class="sectionGrid()">
+      <Block :class="blockWide()">
         <template #header>
-          <div class="flex items-center justify-between text-sm text-slate-400">
-            <span class="uppercase mt-2 tracking-wide">Использование</span>
-            <span class="text-xs">за последние 7 дней</span>
+          <div :class="blockHeader()">
+            <span :class="blockHeaderKicker()">Использование</span>
+            <span :class="blockHeaderMeta()">за последние 7 дней</span>
           </div>
         </template>
-        <div class="mt-6 grid gap-4 sm:grid-cols-2">
-          <div
-            v-for="card in usageCards"
-            :key="card.kicker"
-            class="rounded-2xl border border-slate-800/70 bg-slate-950/70 p-4"
-          >
-            <div class="flex items-center justify-between">
-              <p class="text-sm text-slate-400">{{ card.kicker }}</p>
-              <i :class="['pi', card.icon, 'text-primary-400']"></i>
+        <div :class="usageGrid()">
+          <div v-for="card in usageCards" :key="card.kicker" :class="usageCard()">
+            <div :class="usageCardHeader()">
+              <p :class="usageCardKicker()">{{ card.kicker }}</p>
+              <i :class="['pi', card.icon, usageIcon()]"></i>
             </div>
-            <p class="mt-3 text-2xl font-semibold text-white">{{ card.value }}</p>
-            <p class="mt-1 text-xs text-slate-400">{{ card.caption }}</p>
+            <p :class="usageValue()">{{ card.value }}</p>
+            <p :class="usageCaption()">{{ card.caption }}</p>
           </div>
         </div>
-        <div class="mt-6 flex flex-wrap gap-2 text-xs text-slate-400">
+        <div :class="ideasRow()">
           <span>Идеи для инфографики:</span>
-          <span class="rounded-full border border-slate-800 px-3 py-1">Скорость API</span>
-          <span class="rounded-full border border-slate-800 px-3 py-1">Очередь задач</span>
-          <span class="rounded-full border border-slate-800 px-3 py-1">Глубина архива</span>
-          <span class="rounded-full border border-slate-800 px-3 py-1">Экономия времени</span>
+          <span :class="ideasPill()">Скорость API</span>
+          <span :class="ideasPill()">Очередь задач</span>
+          <span :class="ideasPill()">Глубина архива</span>
+          <span :class="ideasPill()">Экономия времени</span>
         </div>
       </Block>
 
       <Block>
         <template #header>
-          <div class="flex items-center justify-between text-sm text-slate-400">
-            <span class="uppercase tracking-wide">Статус</span>
-            <span class="text-xs text-primary-300">активно</span>
+          <div :class="blockHeader()">
+            <span :class="blockHeaderKickerPlain()">Статус</span>
+            <span :class="statusHighlightSmall()">активно</span>
           </div>
         </template>
-        <div class="mt-4 space-y-4 text-sm text-slate-200">
-          <div class="flex items-center justify-between">
+        <div :class="statusList()">
+          <div :class="statusRow()">
             <span>Подписка</span>
-            <span class="text-primary-300">Pro trial</span>
+            <span :class="statusHighlight()">Pro trial</span>
           </div>
-          <div class="flex items-center justify-between">
+          <div :class="statusRow()">
             <span>Следующий платёж</span>
             <span>12 фев</span>
           </div>
-          <div class="flex items-center justify-between">
+          <div :class="statusRow()">
             <span>Команда</span>
             <span>1 участник</span>
           </div>
-          <div class="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 text-xs text-slate-400 mb-4 sm:mb-0">
+          <div :class="statusNote()">
             Добавьте участников и доступы к модулям, чтобы собрать единое рабочее пространство.
           </div>
         </div>
@@ -73,11 +68,11 @@
     </section>
 
     <section>
-      <div class="flex items-center justify-between gap-4">
-        <h2 class="text-2xl font-semibold text-white">Модули</h2>
+      <div :class="sectionHeader()">
+        <h2 :class="sectionTitle()">Модули</h2>
         <Tag severity="secondary">MVP в работе</Tag>
       </div>
-      <div class="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div :class="modulesGrid()">
         <ModuleCard
           v-for="module in modules"
           :key="module.title"
@@ -100,6 +95,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import ModuleCard from '@/components/app/ModuleCard.vue'
 import Block from '@/components/app/Block.vue'
 import Tag from 'primevue/tag'
+import { tv } from 'tailwind-variants'
 
 type UsageCard = {
   kicker: string
@@ -120,6 +116,76 @@ type ModuleConfig = {
   route?: string
   disabled?: boolean
 }
+
+const styles = tv({
+  slots: {
+    layout: ['flex flex-col gap-8'],
+    header: ['flex flex-col gap-2'],
+    title: ['text-3xl font-semibold text-white'],
+    lead: ['text-slate-300'],
+    tagRow: ['mt-3 flex flex-wrap gap-3'],
+    sectionGrid: ['grid gap-6 lg:grid-cols-3'],
+    blockWide: ['lg:col-span-2'],
+    blockHeader: [
+      'flex flex-col gap-1 text-sm text-slate-400 md:flex-row md:items-center',
+      'md:justify-between',
+    ],
+    blockHeaderKicker: ['uppercase mt-2 tracking-wide'],
+    blockHeaderKickerPlain: ['uppercase tracking-wide'],
+    blockHeaderMeta: ['text-xs'],
+    usageGrid: ['mt-6 grid gap-4 sm:grid-cols-2'],
+    usageCard: ['rounded-2xl border border-slate-800/70 bg-slate-950/70 p-4'],
+    usageCardHeader: ['flex items-center justify-between'],
+    usageCardKicker: ['text-sm text-slate-400'],
+    usageIcon: ['text-primary-400'],
+    usageValue: ['mt-3 text-2xl font-semibold text-white'],
+    usageCaption: ['mt-1 text-xs text-slate-400'],
+    ideasRow: ['mt-6 flex flex-wrap gap-2 text-xs text-slate-400'],
+    ideasPill: ['rounded-full border border-slate-800 px-3 py-1'],
+    statusList: ['mt-4 space-y-4 text-sm text-slate-200'],
+    statusRow: ['flex items-center justify-between'],
+    statusHighlight: ['text-primary-300'],
+    statusHighlightSmall: ['text-xs text-primary-300'],
+    statusNote: [
+      'rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 text-xs',
+      'text-slate-400 mb-4 sm:mb-0',
+    ],
+    sectionHeader: ['flex items-center justify-between gap-4'],
+    sectionTitle: ['text-2xl font-semibold text-white'],
+    modulesGrid: ['mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3'],
+  },
+})
+
+const {
+  layout,
+  header,
+  title,
+  lead,
+  tagRow,
+  sectionGrid,
+  blockWide,
+  blockHeader,
+  blockHeaderKicker,
+  blockHeaderKickerPlain,
+  blockHeaderMeta,
+  usageGrid,
+  usageCard,
+  usageCardHeader,
+  usageCardKicker,
+  usageIcon,
+  usageValue,
+  usageCaption,
+  ideasRow,
+  ideasPill,
+  statusList,
+  statusRow,
+  statusHighlight,
+  statusHighlightSmall,
+  statusNote,
+  sectionHeader,
+  sectionTitle,
+  modulesGrid,
+} = styles()
 
 const usageCards: UsageCard[] = [
   {
