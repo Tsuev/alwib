@@ -1,6 +1,6 @@
 <template>
-  <div :class="expandedOverlay()" @click="$emit('close')">
-    <div :class="expandedPanel()" @click.stop>
+  <div class="ai-expanded-overlay" :class="expandedOverlay()" @click="$emit('close')">
+    <div class="ai-expanded-panel" :class="expandedPanel()" @click.stop>
       <div :class="chatHeader()">
         <div :class="macButtons()">
           <Button
@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import { tv } from 'tailwind-variants'
-import { getAgentLabel, type AgentOption, type ChatItem } from './types'
+import { getAgentLabel, type AgentOption, type ChatItem } from '@/types/ai'
 
 defineProps<{
   chat: ChatItem

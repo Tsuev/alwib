@@ -7,8 +7,8 @@
       </p>
     </header>
 
-    <section :class="workspace()">
-      <TransitionGroup name="chat-list" tag="div" :class="chatRow()">
+    <section ref="chatWorkspaceRef" :class="workspace()">
+      <TransitionGroup name="chat-list" tag="div" :class="chatRow()" :style="chatRowStyle">
         <AiChatCard
           v-for="chat in chats"
           :key="chat.id"
@@ -24,14 +24,16 @@
       </TransitionGroup>
     </section>
 
-    <AiExpandedChatModal
-      v-if="expandedChat"
-      :chat="expandedChat"
-      :agent-options="agentOptions"
-      @close="closeExpanded"
-      @toggle-pin="togglePin"
-      @set-agent="setAgent"
-    />
+    <Transition name="expanded-chat" appear>
+      <AiExpandedChatModal
+        v-if="expandedChat"
+        :chat="expandedChat"
+        :agent-options="agentOptions"
+        @close="closeExpanded"
+        @toggle-pin="togglePin"
+        @set-agent="setAgent"
+      />
+    </Transition>
   </DefaultLayout>
 </template>
 
@@ -40,12 +42,58 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import AiChatCard from '@/components/ai/AiChatCard.vue'
 import AiAddChatCard from '@/components/ai/AiAddChatCard.vue'
 import AiExpandedChatModal from '@/components/ai/AiExpandedChatModal.vue'
-import { agentOptions } from '@/components/ai/types'
+import { agentOptions } from '@/types/ai'
 import { useAiChats } from '@/composables/useAiChats'
 import { tv } from 'tailwind-variants'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const { chats, expandedChat, addChat, removeChat, togglePin, openExpanded, closeExpanded, setAgent } =
   useAiChats()
+const chatWorkspaceRef = ref<HTMLElement | null>(null)
+const chatRowWidth = ref<number | null>(null)
+let chatWorkspaceObserver: ResizeObserver | null = null
+
+const CARD_WIDTH = 360
+const MOBILE_GAP = 16
+const DESKTOP_GAP = 20
+
+const getGapSize = (width: number) => (width >= 768 ? DESKTOP_GAP : MOBILE_GAP)
+
+const updateChatRowWidth = () => {
+  const workspace = chatWorkspaceRef.value
+  if (!workspace) {
+    chatRowWidth.value = null
+    return
+  }
+
+  const availableWidth = workspace.clientWidth
+  const gap = getGapSize(window.innerWidth)
+  const columns = Math.max(1, Math.floor((availableWidth + gap) / (CARD_WIDTH + gap)))
+  const targetWidth = columns * CARD_WIDTH + (columns - 1) * gap
+
+  chatRowWidth.value = Math.min(availableWidth, targetWidth)
+}
+
+onMounted(() => {
+  updateChatRowWidth()
+
+  if (chatWorkspaceRef.value) {
+    chatWorkspaceObserver = new ResizeObserver(updateChatRowWidth)
+    chatWorkspaceObserver.observe(chatWorkspaceRef.value)
+  }
+
+  window.addEventListener('resize', updateChatRowWidth)
+})
+
+onUnmounted(() => {
+  chatWorkspaceObserver?.disconnect()
+  window.removeEventListener('resize', updateChatRowWidth)
+})
+
+const chatRowStyle = computed(() => ({
+  width: chatRowWidth.value ? `${chatRowWidth.value}px` : '100%',
+  maxWidth: '100%',
+}))
 
 const styles = tv({
   slots: {
@@ -53,8 +101,11 @@ const styles = tv({
     header: ['flex flex-col gap-2'],
     title: ['text-3xl font-semibold text-white'],
     lead: ['text-slate-300'],
-    workspace: ['mt-2'],
-    chatRow: ['mt-4 flex flex-wrap items-start justify-center gap-4 md:justify-start'],
+    workspace: ['mt-2 mx-auto w-full max-w-[1940px] px-3 sm:px-4 lg:px-6'],
+    chatRow: [
+      'mt-4 mx-auto grid justify-start gap-x-4 gap-y-4 md:gap-x-5 md:gap-y-5',
+      '[grid-template-columns:repeat(auto-fit,minmax(320px,360px))]',
+    ],
   },
 })
 
@@ -76,5 +127,36 @@ const { layout, header, title, lead, workspace, chatRow } = styles()
 
 .chat-list-leave-active {
   position: absolute;
+}
+
+:deep(.expanded-chat-enter-active),
+:deep(.expanded-chat-leave-active) {
+  transition: opacity 260ms ease;
+}
+
+:deep(.expanded-chat-enter-from),
+:deep(.expanded-chat-leave-to) {
+  opacity: 0;
+}
+
+:deep(.expanded-chat-enter-active .ai-expanded-panel),
+:deep(.expanded-chat-leave-active .ai-expanded-panel) {
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
+  will-change: transform, opacity;
+}
+
+:deep(.expanded-chat-enter-from .ai-expanded-panel),
+:deep(.expanded-chat-leave-to .ai-expanded-panel) {
+  opacity: 0;
+  transform: translateY(14px) scale(0.975);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :deep(.expanded-chat-enter-active),
+  :deep(.expanded-chat-leave-active),
+  :deep(.expanded-chat-enter-active .ai-expanded-panel),
+  :deep(.expanded-chat-leave-active .ai-expanded-panel) {
+    transition: none;
+  }
 }
 </style>

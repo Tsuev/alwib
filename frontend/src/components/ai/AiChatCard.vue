@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import { tv } from 'tailwind-variants'
-import { getAgentLabel, type AgentOption, type ChatItem } from './types'
+import { getAgentLabel, type AgentOption, type ChatItem } from '@/types/ai'
 
 defineProps<{
   chat: ChatItem

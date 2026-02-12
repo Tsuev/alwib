@@ -1,5 +1,5 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { agentOptions, type AgentValue, type ChatItem } from '@/components/ai/types'
+import { agentOptions, type AgentValue, type ChatItem } from '@/types/ai'
 
 const PINNED_CHATS_STORAGE_KEY = 'alwib-ai-pinned-chats-v1'
 
