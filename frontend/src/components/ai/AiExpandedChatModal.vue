@@ -5,30 +5,13 @@
         <div :class="macButtons()">
           <Button
             type="button"
-            icon="pi pi-times"
-            rounded
-            text
-            :class="[macButton(), closeButton()]"
-            aria-label="Закрыть модальное окно"
-            :pt="{ icon: { class: macIcon() } }"
-            @click="$emit('close')"
-          />
-          <Button
-            type="button"
-            icon="pi pi-window-maximize"
+            icon="pi pi-arrow-down-left-and-arrow-up-right-to-center"
             rounded
             text
             :class="[macButton(), expandButton(), macButtonActive()]"
+            aria-label="Свернуть чат"
             :pt="{ icon: { class: macIcon() } }"
-          />
-          <Button
-            type="button"
-            icon="pi pi-thumbtack"
-            rounded
-            text
-            :class="[macButton(), pinButton(), chat.pinned ? macButtonActive() : '']"
-            :pt="{ icon: { class: macIcon() } }"
-            @click="$emit('toggle-pin', chat.id)"
+            @click="$emit('close')"
           />
         </div>
 
@@ -96,9 +79,7 @@ const styles = tv({
       'group !flex !h-6 !w-6 !items-center !justify-center !rounded-full !border !p-0',
       'transition focus:outline-none',
     ],
-    closeButton: ['!border-red-500/60 !bg-red-400 hover:!bg-red-300'],
     expandButton: ['!border-amber-500/60 !bg-amber-300 hover:!bg-amber-200'],
-    pinButton: ['!border-emerald-500/60 !bg-emerald-300 hover:!bg-emerald-200'],
     macButtonActive: ['ring-2 ring-white/35'],
     macIcon: ['!text-[10px] !text-slate-900 !opacity-95'],
     selectWrap: ['relative'],
@@ -138,9 +119,7 @@ const {
   chatHeader,
   macButtons,
   macButton,
-  closeButton,
   expandButton,
-  pinButton,
   macButtonActive,
   macIcon,
   selectWrap,
