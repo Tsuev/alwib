@@ -3,58 +3,97 @@
     <header :class="header()">
       <h1 :class="title()">ИИ ассистенты</h1>
       <p :class="lead()">
-        Подготовленные роли с контролируемыми промптами. История каждого диалога хранится до 50
-        сообщений.
+        Создавайте несколько независимых чатов, переключайте агентов и закрепляйте нужные окна.
       </p>
     </header>
 
-    <section :class="sectionGrid()">
-      <div :class="card()">
-        <p :class="cardTitle()">Базовые роли</p>
-        <ul :class="list()">
-          <li :class="listItem()">
-            <i :class="listIcon()" aria-hidden="true"></i>
-            <span>Маркетолог</span>
-          </li>
-          <li :class="listItem()">
-            <i :class="listIcon()" aria-hidden="true"></i>
-            <span>Помощник к собеседованию</span>
-          </li>
-          <li :class="listItem()">
-            <i :class="listIcon()" aria-hidden="true"></i>
-            <span>Код-ассистент</span>
-          </li>
-        </ul>
-      </div>
-
-      <div :class="card()">
-        <p :class="cardTitle()">Лимиты</p>
-        <ul :class="list()">
-          <li :class="listItem()">
-            <i :class="listIcon()" aria-hidden="true"></i>
-            <span>До 50 сообщений в каждом чате.</span>
-          </li>
-          <li :class="listItem()">
-            <i :class="listIcon()" aria-hidden="true"></i>
-            <span>Промпты фиксируются на стороне админа.</span>
-          </li>
-        </ul>
-        <Button
-          label="Открыть библиотеку ролей"
-          severity="primary"
-          :class="actionButton()"
-          disabled
+    <section ref="chatWorkspaceRef" :class="workspace()">
+      <TransitionGroup name="chat-list" tag="div" :class="chatRow()" :style="chatRowStyle">
+        <AiChatCard
+          v-for="chat in chats"
+          :key="chat.id"
+          :chat="chat"
+          :agent-options="agentOptions"
+          @remove-chat="removeChat"
+          @open-expanded="openExpanded"
+          @toggle-pin="togglePin"
+          @set-agent="setAgent"
         />
-        <p :class="helperText()">Модуль в разработке — подключим Deepseek API.</p>
-      </div>
+
+        <AiAddChatCard key="add-chat-card" @add-chat="addChat" />
+      </TransitionGroup>
     </section>
+
+    <Transition name="expanded-chat" appear>
+      <AiExpandedChatModal
+        v-if="expandedChat"
+        :chat="expandedChat"
+        :agent-options="agentOptions"
+        @close="closeExpanded"
+        @toggle-pin="togglePin"
+        @set-agent="setAgent"
+      />
+    </Transition>
   </DefaultLayout>
 </template>
 
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import Button from 'primevue/button'
+import AiChatCard from '@/components/ai/AiChatCard.vue'
+import AiAddChatCard from '@/components/ai/AiAddChatCard.vue'
+import AiExpandedChatModal from '@/components/ai/AiExpandedChatModal.vue'
+import { agentOptions } from '@/types/ai'
+import { useAiChats } from '@/composables/useAiChats'
 import { tv } from 'tailwind-variants'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+
+const { chats, expandedChat, addChat, removeChat, togglePin, openExpanded, closeExpanded, setAgent } =
+  useAiChats()
+const chatWorkspaceRef = ref<HTMLElement | null>(null)
+const chatRowWidth = ref<number | null>(null)
+let chatWorkspaceObserver: ResizeObserver | null = null
+
+const CARD_WIDTH = 360
+const MOBILE_GAP = 16
+const DESKTOP_GAP = 20
+
+const getGapSize = (width: number) => (width >= 768 ? DESKTOP_GAP : MOBILE_GAP)
+
+const updateChatRowWidth = () => {
+  const workspace = chatWorkspaceRef.value
+  if (!workspace) {
+    chatRowWidth.value = null
+    return
+  }
+
+  const availableWidth = workspace.clientWidth
+  const gap = getGapSize(window.innerWidth)
+  const columns = Math.max(1, Math.floor((availableWidth + gap) / (CARD_WIDTH + gap)))
+  const targetWidth = columns * CARD_WIDTH + (columns - 1) * gap
+
+  chatRowWidth.value = Math.min(availableWidth, targetWidth)
+}
+
+onMounted(() => {
+  updateChatRowWidth()
+
+  if (chatWorkspaceRef.value) {
+    chatWorkspaceObserver = new ResizeObserver(updateChatRowWidth)
+    chatWorkspaceObserver.observe(chatWorkspaceRef.value)
+  }
+
+  window.addEventListener('resize', updateChatRowWidth)
+})
+
+onUnmounted(() => {
+  chatWorkspaceObserver?.disconnect()
+  window.removeEventListener('resize', updateChatRowWidth)
+})
+
+const chatRowStyle = computed(() => ({
+  width: chatRowWidth.value ? `${chatRowWidth.value}px` : '100%',
+  maxWidth: '100%',
+}))
 
 const styles = tv({
   slots: {
@@ -62,29 +101,62 @@ const styles = tv({
     header: ['flex flex-col gap-2'],
     title: ['text-3xl font-semibold text-white'],
     lead: ['text-slate-300'],
-    sectionGrid: ['grid gap-6 mt-6 lg:grid-cols-2'],
-    card: ['rounded-2xl bg-slate-900/80 p-6'],
-    cardTitle: ['text-sm uppercase tracking-wide text-slate-400'],
-    list: ['mt-3 space-y-2 text-sm text-slate-200'],
-    listItem: ['flex items-start gap-2'],
-    listIcon: ['pi pi-check-circle mt-0.5 text-primary-400'],
-    actionButton: ['mt-6 w-full'],
-    helperText: ['mt-4 text-xs text-slate-400'],
+    workspace: ['mt-2 mx-auto w-full max-w-[1940px] px-3 sm:px-4 lg:px-6'],
+    chatRow: [
+      'mt-4 mx-auto grid justify-start gap-x-4 gap-y-4 md:gap-x-5 md:gap-y-5',
+      '[grid-template-columns:repeat(auto-fit,minmax(320px,360px))]',
+    ],
   },
 })
 
-const {
-  layout,
-  header,
-  title,
-  lead,
-  sectionGrid,
-  card,
-  cardTitle,
-  list,
-  listItem,
-  listIcon,
-  actionButton,
-  helperText,
-} = styles()
+const { layout, header, title, lead, workspace, chatRow } = styles()
 </script>
+
+<style scoped>
+.chat-list-move,
+.chat-list-enter-active,
+.chat-list-leave-active {
+  transition: transform 260ms ease, opacity 220ms ease;
+}
+
+.chat-list-enter-from,
+.chat-list-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+.chat-list-leave-active {
+  position: absolute;
+}
+
+:deep(.expanded-chat-enter-active),
+:deep(.expanded-chat-leave-active) {
+  transition: opacity 260ms ease;
+}
+
+:deep(.expanded-chat-enter-from),
+:deep(.expanded-chat-leave-to) {
+  opacity: 0;
+}
+
+:deep(.expanded-chat-enter-active .ai-expanded-panel),
+:deep(.expanded-chat-leave-active .ai-expanded-panel) {
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
+  will-change: transform, opacity;
+}
+
+:deep(.expanded-chat-enter-from .ai-expanded-panel),
+:deep(.expanded-chat-leave-to .ai-expanded-panel) {
+  opacity: 0;
+  transform: translateY(14px) scale(0.975);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :deep(.expanded-chat-enter-active),
+  :deep(.expanded-chat-leave-active),
+  :deep(.expanded-chat-enter-active .ai-expanded-panel),
+  :deep(.expanded-chat-leave-active .ai-expanded-panel) {
+    transition: none;
+  }
+}
+</style>
