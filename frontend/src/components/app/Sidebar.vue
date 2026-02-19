@@ -1,6 +1,7 @@
 <template>
   <Sidebar
     v-model:visible="sidebarOpen"
+    blockScroll
     :pt="{
       content: { class: sidebarContent() },
     }"
@@ -16,7 +17,12 @@
 
       <div :class="section()">
         <p :class="sectionLabel()">Навигация</p>
-        <RouterLink to="/" :class="menuItem()" :exact-active-class="menuItemActive()">
+        <RouterLink
+          to="/"
+          :class="menuItem()"
+          :exact-active-class="menuItemActive()"
+          @click="closeSidebar"
+        >
           <i :class="menuIconHome()"></i>
           <span>Главная</span>
         </RouterLink>
@@ -24,15 +30,30 @@
 
       <div :class="section()">
         <p :class="sectionLabel()">Модули</p>
-        <RouterLink to="/vpn" :class="menuItem()" :exact-active-class="menuItemActive()">
+        <RouterLink
+          to="/vpn"
+          :class="menuItem()"
+          :exact-active-class="menuItemActive()"
+          @click="closeSidebar"
+        >
           <i :class="menuIconShield()"></i>
           <span>VPN</span>
         </RouterLink>
-        <RouterLink to="/ai" :class="menuItem()" :exact-active-class="menuItemActive()">
+        <RouterLink
+          to="/ai"
+          :class="menuItem()"
+          :exact-active-class="menuItemActive()"
+          @click="closeSidebar"
+        >
           <i :class="menuIconComment()"></i>
           <span>ИИ‑ассистенты</span>
         </RouterLink>
-        <RouterLink to="/downloader" :class="menuItem()" :exact-active-class="menuItemActive()">
+        <RouterLink
+          to="/downloader"
+          :class="menuItem()"
+          :exact-active-class="menuItemActive()"
+          @click="closeSidebar"
+        >
           <i :class="menuIconDownload()"></i>
           <span>Загрузчик</span>
         </RouterLink>
@@ -77,15 +98,20 @@ const uiStore = useUiStore()
 const { sidebarOpen } = storeToRefs(uiStore)
 useBreakpoints()
 
+const closeSidebar = () => {
+  uiStore.setSidebarOpen(false)
+}
+
 const handleLogout = async () => {
+  closeSidebar()
   await logout()
   router.push('/auth')
 }
 
 const styles = tv({
   slots: {
-    sidebarContent: ['p-0'],
-    aside: ['flex h-screen flex-col px-4 py-6'],
+    sidebarContent: ['h-full overflow-y-auto p-0'],
+    aside: ['flex min-h-full flex-col px-4 py-6'],
     brandRow: ['mb-6 flex items-center gap-3 border-b border-slate-800/80 pb-5'],
     brandTitle: ['text-base font-semibold text-white'],
     brandSubtitle: ['text-xs uppercase tracking-[0.2em] text-slate-400'],
@@ -123,7 +149,7 @@ const styles = tv({
       'ml-auto rounded-full border border-slate-800 px-2 py-0.5 text-[10px]',
       'uppercase tracking-widest text-slate-400',
     ],
-    footer: ['mt-auto'],
+    footer: ['mt-auto pb-2 pt-4'],
     logoutButton: [
       'menu-item group w-full cursor-pointer rounded-xl border',
       'border-transparent px-4 py-3 text-left text-sm leading-5',
