@@ -7,6 +7,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MailerService } from './mailer.service';
 import { GoogleStrategy } from './google.strategy';
+import { GoogleAuthGuard } from './google-auth.guard';
 
 @Module({
   imports: [
@@ -16,7 +17,14 @@ import { GoogleStrategy } from './google.strategy';
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  providers: [AuthService, JwtStrategy, PrismaService, MailerService, GoogleStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    PrismaService,
+    MailerService,
+    GoogleStrategy,
+    GoogleAuthGuard,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })

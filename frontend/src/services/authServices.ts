@@ -8,64 +8,31 @@ import type {
   RegisterResponse,
   RequestOtpDto,
   VerifyOtpDto,
-  User,
 } from '@/types/AuthTypes'
 import { type ToastServiceMethods } from 'primevue/toastservice'
 
 interface AxiosError {
   response?: {
     data?: {
-      message?: string
+      message?: string | string[]
     }
   }
 }
 
 const getErrorMessage = (error: unknown, defaultMessage: string): string => {
   const axiosError = error as AxiosError
-  return axiosError?.response?.data?.message || defaultMessage
-}
+  const message = axiosError?.response?.data?.message
 
-const DEV_EMAIL = 'tsuev@alwib.ru'
-const DEV_PASSWORD = '0000'
-const DEV_OTP = '0000'
-const DEV_TOKEN = 'dev-token-tsuev'
-
-const DEV_USER: User = {
-  id: 1,
-  email: DEV_EMAIL,
-  role: 'owner',
-  createdAt: '2024-01-01T00:00:00.000Z',
-}
-
-const persistDevSession = () => {
-  try {
-    localStorage.setItem('token', DEV_TOKEN)
-    localStorage.setItem('dev_user', JSON.stringify(DEV_USER))
-  } catch (error) {
-    console.warn('Не удалось сохранить dev-сессию', error)
+  if (Array.isArray(message)) {
+    return message.join(', ')
   }
+
+  return message || defaultMessage
 }
 
-const clearDevSession = () => {
-  try {
-    localStorage.removeItem('token')
-    localStorage.removeItem('dev_user')
-  } catch (error) {
-    console.warn('Не удалось очистить dev-сессию', error)
-  }
-}
-
-const getDevSession = (): User | null => {
-  try {
-    const token = localStorage.getItem('token')
-    if (token !== DEV_TOKEN) return null
-    const rawUser = localStorage.getItem('dev_user')
-    if (!rawUser) return DEV_USER
-    return JSON.parse(rawUser) as User
-  } catch (error) {
-    console.warn('Не удалось прочитать dev-сессию', error)
-    return null
-  }
+const getGoogleAuthUrl = () => {
+  const apiBase = import.meta.env.VITE_API_BASE_URL
+  return `${apiBase}/auth/google`
 }
 
 const register = async (
@@ -73,16 +40,6 @@ const register = async (
   toast: ToastServiceMethods,
 ): Promise<RegisterResponse | null> => {
   try {
-    if (registerDto.email === DEV_EMAIL && registerDto.password === DEV_PASSWORD) {
-      toast.add({
-        severity: 'success',
-        summary: 'Регистрация успешна',
-        detail: 'Dev-доступ активирован',
-        life: 3000,
-      })
-      return { message: 'Dev-доступ активирован', user: DEV_USER }
-    }
-
     const response = await axios.post<RegisterResponse>('/auth/register', registerDto, {
       withCredentials: true,
     })
@@ -114,16 +71,6 @@ const requestOtp = async (
   toast: ToastServiceMethods,
 ): Promise<boolean> => {
   try {
-    if (requestOtpDto.email === DEV_EMAIL) {
-      toast.add({
-        severity: 'success',
-        summary: 'Код отправлен',
-        detail: 'Используйте 0000',
-        life: 3000,
-      })
-      return true
-    }
-
     await axios.post('/auth/request-otp', requestOtpDto, {
       withCredentials: true,
     })
@@ -155,17 +102,6 @@ const verifyOtp = async (
   toast: ToastServiceMethods,
 ): Promise<AuthResponse | null> => {
   try {
-    if (verifyOtpDto.email === DEV_EMAIL && verifyOtpDto.code === DEV_OTP) {
-      persistDevSession()
-      toast.add({
-        severity: 'success',
-        summary: 'Почта подтверждена',
-        detail: 'Dev-доступ активирован',
-        life: 3000,
-      })
-      return { message: 'Dev-доступ активирован', user: DEV_USER }
-    }
-
     const response = await axios.post<AuthResponse>('/auth/verify-otp', verifyOtpDto, {
       withCredentials: true,
     })
@@ -197,17 +133,6 @@ const login = async (
   toast: ToastServiceMethods,
 ): Promise<AuthResponse | null> => {
   try {
-    if (loginDto.email === DEV_EMAIL && loginDto.password === DEV_PASSWORD) {
-      persistDevSession()
-      toast.add({
-        severity: 'success',
-        summary: 'Вход выполнен',
-        detail: 'Dev-доступ активирован',
-        life: 3000,
-      })
-      return { message: 'Dev-доступ активирован', user: DEV_USER }
-    }
-
     const response = await axios.post<AuthResponse>('/auth/login', loginDto, {
       withCredentials: true,
     })
@@ -236,18 +161,6 @@ const login = async (
 
 const logout = async (toast: ToastServiceMethods): Promise<boolean> => {
   try {
-    const devSession = getDevSession()
-    if (devSession) {
-      clearDevSession()
-      toast.add({
-        severity: 'success',
-        summary: 'Выход выполнен',
-        detail: 'Dev-доступ завершён',
-        life: 3000,
-      })
-      return true
-    }
-
     await axios.post(
       '/auth/logout',
       {},
@@ -280,11 +193,6 @@ const logout = async (toast: ToastServiceMethods): Promise<boolean> => {
 
 const getProfile = async (toast?: ToastServiceMethods): Promise<ProfileResponse | null> => {
   try {
-    const devSession = getDevSession()
-    if (devSession) {
-      return { user: devSession }
-    }
-
     const response = await axios.get<ProfileResponse>('/auth/profile', {
       withCredentials: true,
     })
@@ -308,11 +216,6 @@ const getProfile = async (toast?: ToastServiceMethods): Promise<ProfileResponse 
 
 const verifyToken = async (toast?: ToastServiceMethods): Promise<VerifyResponse | null> => {
   try {
-    const devSession = getDevSession()
-    if (devSession) {
-      return { valid: true, user: devSession }
-    }
-
     const response = await axios.get<VerifyResponse>('/auth/verify', {
       withCredentials: true,
     })
@@ -342,4 +245,5 @@ export default {
   logout,
   getProfile,
   verifyToken,
+  getGoogleAuthUrl,
 }

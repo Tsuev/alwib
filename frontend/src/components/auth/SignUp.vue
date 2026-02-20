@@ -46,7 +46,7 @@
     </template>
 
     <div :class="dialogContent()">
-      <InputOtp v-model="otpCode" name="passcode" />
+      <InputOtp v-model="otpCode" name="passcode" :length="6" />
 
       <Button
         type="button"
@@ -118,8 +118,7 @@ const switchToLogin = () => {
 }
 
 const loginWithGoogle = () => {
-  const apiBase = import.meta.env.VITE_API_BASE_URL
-  window.location.href = `${apiBase}/auth/google`
+  window.location.href = authServices.getGoogleAuthUrl()
 }
 
 const formatTime = (seconds: number) => {

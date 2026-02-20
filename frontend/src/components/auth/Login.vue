@@ -50,8 +50,7 @@ const router = useRouter()
 const loading = ref(false)
 
 const loginWithGoogle = () => {
-  const apiBase = import.meta.env.VITE_API_BASE_URL
-  window.location.href = `${apiBase}/auth/google`
+  window.location.href = authServices.getGoogleAuthUrl()
 }
 
 const login = async ({ values }: { values: unknown }) => {

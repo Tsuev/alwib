@@ -1,4 +1,3 @@
-import { onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { useToast } from 'primevue/usetoast'
 import { useServices } from './useServices'
@@ -9,6 +8,10 @@ export const useAuth = () => {
   const { authServices } = useServices()
 
   const initializeAuth = async () => {
+    if (userStore.authInitialized) {
+      return
+    }
+
     try {
       // Проверяем валидность токена
       const verifyResponse = await authServices.verifyToken()
@@ -21,6 +24,8 @@ export const useAuth = () => {
     } catch (error) {
       console.error('Ошибка инициализации авторизации:', error)
       userStore.clearUser()
+    } finally {
+      userStore.setAuthInitialized(true)
     }
   }
 

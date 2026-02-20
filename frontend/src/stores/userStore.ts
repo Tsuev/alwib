@@ -5,6 +5,7 @@ import type { User } from '@/types/AuthTypes'
 export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null)
   const isAuthenticated = ref(false)
+  const authInitialized = ref(false)
 
   const setUser = (userData: User | null) => {
     user.value = userData
@@ -16,5 +17,9 @@ export const useUserStore = defineStore('user', () => {
     isAuthenticated.value = false
   }
 
-  return { user, isAuthenticated, setUser, clearUser }
+  const setAuthInitialized = (value: boolean) => {
+    authInitialized.value = value
+  }
+
+  return { user, isAuthenticated, authInitialized, setUser, clearUser, setAuthInitialized }
 })

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { authServices } from '@/services'
 
 import HomeView from '../views/HomeView.vue'
 import AiView from '@/views/AiView.vue'
@@ -49,8 +50,32 @@ const router = createRouter({
   ],
 })
 
+const ensureAuthInitialized = async () => {
+  const userStore = useUserStore()
+
+  if (userStore.authInitialized) {
+    return
+  }
+
+  try {
+    const verifyResponse = await authServices.verifyToken()
+
+    if (verifyResponse?.valid && verifyResponse.user) {
+      userStore.setUser(verifyResponse.user)
+    } else {
+      userStore.clearUser()
+    }
+  } catch (error) {
+    userStore.clearUser()
+    console.error('Не удалось инициализировать сессию', error)
+  } finally {
+    userStore.setAuthInitialized(true)
+  }
+}
+
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
+  await ensureAuthInitialized()
 
   // Если маршрут требует авторизации
   if (to.meta.requiresAuth) {

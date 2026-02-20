@@ -1,0 +1,4 @@
+interface:
+  display_name: "Alwib Frontend"
+  short_description: "Vue 3 frontend development for Alwib workspace"
+  default_prompt: "Implement or refactor frontend features in frontend/ following existing project conventions and checks."

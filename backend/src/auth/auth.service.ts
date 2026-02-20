@@ -1,10 +1,10 @@
 import {
   Injectable,
-  OnModuleInit,
   UnauthorizedException,
   ConflictException,
   NotFoundException,
   ForbiddenException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -13,46 +13,18 @@ import { MailerService } from './mailer.service';
 import * as bcrypt from 'bcrypt';
 import { randomInt } from 'crypto';
 
-const SUPERUSER_EMAIL = 'tsuev@alwib.ru';
-const SUPERUSER_PASSWORD = '0000';
-const SUPERUSER_OTP = '0000';
 const OTP_EXPIRATION_MINUTES = 10;
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private mailerService: MailerService,
   ) {}
 
-  async onModuleInit() {
-    await this.ensureSuperUser();
-  }
-
-  private async ensureSuperUser() {
-    const existing = await this.prisma.user.findUnique({
-      where: { email: SUPERUSER_EMAIL },
-    });
-
-    if (existing) {
-      return;
-    }
-
-    const hashedPassword = await bcrypt.hash(SUPERUSER_PASSWORD, 10);
-
-    await this.prisma.user.create({
-      data: {
-        email: SUPERUSER_EMAIL,
-        password: hashedPassword,
-        role: 'superuser',
-        emailVerified: true,
-      },
-    });
-  }
-
   private async generateAndSendOtp(userId: number, email: string) {
-    const code = email === SUPERUSER_EMAIL ? SUPERUSER_OTP : this.generateOtpCode();
+    const code = this.generateOtpCode();
     const expiresAt = new Date(Date.now() + OTP_EXPIRATION_MINUTES * 60 * 1000);
 
     await this.prisma.emailOtp.create({
@@ -63,7 +35,13 @@ export class AuthService implements OnModuleInit {
       },
     });
 
-    await this.mailerService.sendOtpEmail(email, code);
+    try {
+      await this.mailerService.sendOtpEmail(email, code);
+    } catch {
+      throw new ServiceUnavailableException(
+        'Не удалось отправить OTP письмо. Проверьте SMTP настройки и попробуйте снова.',
+      );
+    }
   }
 
   private generateOtpCode() {
@@ -75,6 +53,20 @@ export class AuthService implements OnModuleInit {
     return this.jwtService.sign(payload);
   }
 
+  private mapUser(user: {
+    id: number;
+    email: string;
+    role: string;
+    createdAt: Date;
+  }) {
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
+  }
+
   async register(registerDto: RegisterDto) {
     const { email, password } = registerDto;
 
@@ -84,7 +76,30 @@ export class AuthService implements OnModuleInit {
     });
 
     if (existingUser) {
-      throw new ConflictException('Пользователь с таким email уже существует');
+      if (existingUser.emailVerified) {
+        throw new ConflictException('Пользователь с таким email уже существует');
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const updatedUser = await this.prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          password: hashedPassword,
+        },
+      });
+
+      await this.prisma.emailOtp.deleteMany({
+        where: { userId: existingUser.id },
+      });
+
+      await this.generateAndSendOtp(existingUser.id, existingUser.email);
+
+      return {
+        message:
+          'Аккаунт уже создан, но не подтвержден. Новый код отправлен на почту',
+        user: this.mapUser(updatedUser),
+      };
     }
 
     // Хешируем пароль
@@ -103,11 +118,7 @@ export class AuthService implements OnModuleInit {
 
     return {
       message: 'Код подтверждения отправлен на почту',
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
+      user: this.mapUser(user),
     };
   }
 
@@ -137,11 +148,7 @@ export class AuthService implements OnModuleInit {
     const token = this.signToken(user);
 
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
+      user: this.mapUser(user),
       token,
     };
   }
@@ -169,18 +176,6 @@ export class AuthService implements OnModuleInit {
 
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
-    }
-
-    if (email === SUPERUSER_EMAIL && code === SUPERUSER_OTP) {
-      const token = this.signToken(user);
-      return {
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-        },
-        token,
-      };
     }
 
     const latestOtp = await this.prisma.emailOtp.findFirst({
@@ -216,16 +211,16 @@ export class AuthService implements OnModuleInit {
     const token = this.signToken(user);
 
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
+      user: this.mapUser(user),
       token,
     };
   }
 
-  async validateGoogleUser(userData: { email: string; googleId: string; name: string }) {
+  async validateGoogleUser(userData: {
+    email: string;
+    googleId: string;
+    name: string;
+  }) {
     const { email, googleId, name } = userData;
 
     if (!email) {
@@ -237,7 +232,10 @@ export class AuthService implements OnModuleInit {
     });
 
     if (!user) {
-      const tempPassword = await bcrypt.hash(String(randomInt(100000, 999999)), 10);
+      const tempPassword = await bcrypt.hash(
+        String(randomInt(100000, 999999)),
+        10,
+      );
       user = await this.prisma.user.create({
         data: {
           email,
@@ -247,6 +245,10 @@ export class AuthService implements OnModuleInit {
           emailVerified: true,
         },
       });
+    } else if (user.googleId && user.googleId !== googleId) {
+      throw new UnauthorizedException(
+        'Email уже связан с другим Google аккаунтом',
+      );
     } else if (!user.googleId) {
       user = await this.prisma.user.update({
         where: { id: user.id },
@@ -259,13 +261,10 @@ export class AuthService implements OnModuleInit {
 
   async loginWithUser(user: { id: number; email: string; role: string }) {
     const token = this.signToken(user);
+    const profile = await this.validateUser(user.id);
 
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
+      user: profile,
       token,
     };
   }
@@ -280,9 +279,7 @@ export class AuthService implements OnModuleInit {
     }
 
     return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
+      ...this.mapUser(user),
     };
   }
 }

@@ -8,6 +8,7 @@ import {
   UseGuards,
   Get,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import {
@@ -17,15 +18,65 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, RequestOtpDto, VerifyOtpDto } from './dto/auth.dto';
+import {
+  RegisterDto,
+  LoginDto,
+  RequestOtpDto,
+  VerifyOtpDto,
+} from './dto/auth.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { GoogleAuthGuard } from './google-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  private getOAuthUser(user: unknown): {
+    id: number;
+    email: string;
+    role: string;
+  } {
+    if (typeof user === 'object' && user !== null) {
+      const oauthUser = user as {
+        id?: unknown;
+        email?: unknown;
+        role?: unknown;
+      };
+
+      if (
+        typeof oauthUser.id === 'number' &&
+        typeof oauthUser.email === 'string' &&
+        typeof oauthUser.role === 'string'
+      ) {
+        return {
+          id: oauthUser.id,
+          email: oauthUser.email,
+          role: oauthUser.role,
+        };
+      }
+    }
+
+    throw new UnauthorizedException('Некорректный профиль OAuth пользователя');
+  }
+
+  private getAuthCookieOptions() {
+    return {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    };
+  }
+
+  private getClearCookieOptions() {
+    return {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+    };
+  }
 
   @Post('register')
   @ApiOperation({ summary: 'Регистрация нового пользователя' })
@@ -35,13 +86,17 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Код подтверждения отправлен на почту' },
+        message: {
+          type: 'string',
+          example: 'Код подтверждения отправлен на почту',
+        },
         user: {
           type: 'object',
           properties: {
             id: { type: 'number', example: 1 },
             email: { type: 'string', example: 'user@example.com' },
             role: { type: 'string', example: 'user' },
+            createdAt: { type: 'string', format: 'date-time' },
           },
         },
       },
@@ -85,12 +140,7 @@ export class AuthController {
       verifyOtpDto.code,
     );
 
-    res.cookie('token', result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', result.token, this.getAuthCookieOptions());
 
     return {
       message: 'Почта подтверждена',
@@ -125,15 +175,13 @@ export class AuthController {
     description: 'Неверные учетные данные',
   })
   @ApiBody({ type: LoginDto })
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.login(loginDto);
 
-    res.cookie('token', result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', result.token, this.getAuthCookieOptions());
 
     return {
       message: 'Вход выполнен успешно',
@@ -142,26 +190,24 @@ export class AuthController {
   }
 
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Google OAuth' })
-  async googleAuth() {
+  googleAuth() {
     return;
   }
 
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleCallback(@Req() req: Request, @Res() res: Response) {
-    const result = await this.authService.loginWithUser(req.user as any);
+    const oauthUser = this.getOAuthUser(req.user);
+    const result = await this.authService.loginWithUser(oauthUser);
 
-    res.cookie('token', result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', result.token, this.getAuthCookieOptions());
 
-    const redirectUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const redirectUrl =
+      process.env.FRONTEND_OAUTH_REDIRECT_URL || `${frontendUrl}/auth`;
     return res.redirect(redirectUrl);
   }
 
@@ -178,8 +224,8 @@ export class AuthController {
       },
     },
   })
-  async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('token');
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('token', this.getClearCookieOptions());
 
     return {
       message: 'Выход выполнен успешно',
@@ -212,7 +258,7 @@ export class AuthController {
     status: 401,
     description: 'Неавторизованный доступ',
   })
-  async getProfile(@Req() req: Request) {
+  getProfile(@Req() req: Request) {
     return {
       user: req.user,
     };
@@ -245,7 +291,7 @@ export class AuthController {
     status: 401,
     description: 'Неавторизованный доступ',
   })
-  async verify(@Req() req: Request) {
+  verify(@Req() req: Request) {
     return {
       valid: true,
       user: req.user,
