@@ -151,7 +151,7 @@ const styles = tv({
     ],
     footer: ['mt-auto pb-2 pt-4'],
     logoutButton: [
-      'menu-item group w-full cursor-pointer rounded-xl border',
+      'menu-item group w-full cursor-pointer rounded-xl border flex items-center gap-3',
       'border-transparent px-4 py-3 text-left text-sm leading-5',
       'text-slate-300 transition hover:border-slate-800 hover:bg-slate-900/70',
       'hover:text-white',

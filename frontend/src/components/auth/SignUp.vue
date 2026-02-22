@@ -22,6 +22,7 @@
     <Button type="submit" severity="primary" label="Зарегистрироваться" fluid :loading="loading" />
 
     <Button
+      v-if="false"
       type="button"
       severity="secondary"
       label="Продолжить с Google"
