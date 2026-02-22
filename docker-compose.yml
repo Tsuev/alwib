@@ -35,12 +35,12 @@ services:
       GOOGLE_CLIENT_ID: ''
       GOOGLE_CLIENT_SECRET: ''
       GOOGLE_CALLBACK_URL: http://localhost:3000/auth/google/callback
-      SMTP_HOST: ''
+      SMTP_HOST: smtp.gmail.com
       SMTP_PORT: '587'
       SMTP_SECURE: 'false'
-      SMTP_USER: ''
-      SMTP_PASS: ''
-      SMTP_FROM: ''
+      SMTP_USER: tsuevjudoka@gmail.com
+      SMTP_PASS: svzw yfyy qmft cqrw
+      SMTP_FROM: tsuevjudoka@gmail.com
     command: sh -c "npx prisma migrate deploy && npm run start:prod"
     ports:
       - '3000:3000'
