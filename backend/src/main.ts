@@ -4,6 +4,51 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
+const DEV_FRONTEND_PORTS = new Set([5173, 5174, 4173]);
+
+const isPrivateNetworkFrontendOrigin = (origin: string): boolean => {
+  try {
+    const parsed = new URL(origin);
+    const protocol = parsed.protocol;
+    if (protocol !== 'http:' && protocol !== 'https:') {
+      return false;
+    }
+
+    const port = parsed.port
+      ? Number(parsed.port)
+      : protocol === 'https:'
+        ? 443
+        : 80;
+
+    if (!DEV_FRONTEND_PORTS.has(port)) {
+      return false;
+    }
+
+    const hostname = parsed.hostname;
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '::1'
+    ) {
+      return true;
+    }
+
+    if (/^10\./.test(hostname) || /^192\.168\./.test(hostname)) {
+      return true;
+    }
+
+    const subnet172 = hostname.match(/^172\.(\d{1,2})\./);
+    if (!subnet172) {
+      return false;
+    }
+
+    const secondOctet = Number(subnet172[1]);
+    return secondOctet >= 16 && secondOctet <= 31;
+  } catch {
+    return false;
+  }
+};
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
@@ -15,6 +60,10 @@ async function bootstrap() {
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
+  const frontendOriginsSet = new Set(frontendOrigins);
+  const allowPrivateNetworkCors =
+    process.env.CORS_ALLOW_PRIVATE_NETWORK === 'true' ||
+    process.env.NODE_ENV !== 'production';
 
   // Включаем глобальную валидацию
   app.useGlobalPipes(
@@ -27,7 +76,32 @@ async function bootstrap() {
 
   // Включаем CORS для работы с cookies
   app.enableCors({
-    origin: frontendOrigins,
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (typeof origin !== 'string') {
+        callback(null, false);
+        return;
+      }
+
+      if (frontendOriginsSet.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowPrivateNetworkCors && isPrivateNetworkFrontendOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, false);
+    },
     credentials: true,
   });
 
@@ -49,6 +123,7 @@ async function bootstrap() {
     )
     .addTag('auth', 'Аутентификация и авторизация')
     .addTag('app', 'Основные функции приложения')
+    .addTag('vpn', 'VPN интеграция через 3x-ui')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

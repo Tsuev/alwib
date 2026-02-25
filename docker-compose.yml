@@ -32,6 +32,7 @@ services:
       FRONTEND_URL: http://localhost:5173
       FRONTEND_URLS: http://localhost:5173,http://localhost:5174
       FRONTEND_OAUTH_REDIRECT_URL: http://localhost:5173/auth
+      CORS_ALLOW_PRIVATE_NETWORK: 'true'
       GOOGLE_CLIENT_ID: ''
       GOOGLE_CLIENT_SECRET: ''
       GOOGLE_CALLBACK_URL: http://localhost:3000/auth/google/callback
@@ -41,6 +42,12 @@ services:
       SMTP_USER: tsuevjudoka@gmail.com
       SMTP_PASS: svzw yfyy qmft cqrw
       SMTP_FROM: tsuevjudoka@gmail.com
+      XUI_BASE_URL: https://alwib.ru:27419/wayvpn/
+      XUI_USERNAME: qari
+      XUI_PASSWORD: 8447080vasman
+      XUI_INBOUND_ID: '1'
+      XUI_ALLOW_INSECURE_TLS: 'true'
+      XUI_ONLINE_WINDOW_SECONDS: '300'
     command: sh -c "npx prisma migrate deploy && npm run start:prod"
     ports:
       - '3000:3000'

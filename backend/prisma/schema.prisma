@@ -21,6 +21,7 @@ model User {
   emailVerified Boolean    @default(false)
   googleId      String?
   name          String?
+  vpnTrialClaimedAt DateTime?
   createdAt     DateTime   @default(now())
   emailOtps     EmailOtp[]
 }
