@@ -8,122 +8,41 @@
     </header>
 
     <section :class="sectionGrid()">
-      <div :class="deepWideCard()">
-        <div :class="cardHeader()">
-          <p :class="sectionTitle()">VLESS ключ</p>
-          <Button
-            :label="copyLabel"
-            :icon="copyIcon"
-            severity="secondary"
-            size="small"
-            :class="copyButton()"
-            :disabled="!hasKey || loading"
-            @click="copyKey"
-          />
-        </div>
-        <div :class="keyBox()">
-          <template v-if="loading">
-            <Skeleton width="80px" height="10px" />
-            <Skeleton class="mt-2" width="100%" height="14px" />
-            <Skeleton class="mt-2" width="78%" height="14px" />
-          </template>
-          <template v-else>
-            <span v-if="hasKey" :class="keyPrefix()">$ vless://</span>
-            <span :class="keyValue()">{{ keyView }}</span>
-          </template>
-        </div>
-        <p v-if="!loading" :class="helperText()">
-          {{
-            hasKey
-              ? 'Используйте ключ в вашем VPN клиенте или скопируйте одной кнопкой.'
-              : 'Запросите бесплатный ключ или оформите подписку для доступа.'
-          }}
-        </p>
-        <Skeleton v-else :class="helperText()" width="62%" height="10px" />
-      </div>
+      <VpnKeyCard
+        :loading="loading"
+        :has-key="hasKey"
+        :key-view="keyView"
+        :copy-label="copyLabel"
+        :copy-icon="copyIcon"
+        @copy-key="copyKey"
+      />
 
-      <div :class="darkCard()">
-        <p :class="sectionTitle()">Действия</p>
-        <template v-if="loading">
-          <Skeleton :class="firstActionButton()" height="40px" />
-          <Skeleton :class="secondActionButton()" height="40px" />
-          <Skeleton :class="looseHelperText()" width="70%" height="10px" />
-        </template>
-        <template v-else>
-          <Button
-            :label="trialButtonLabel"
-            severity="primary"
-            :class="firstActionButton()"
-            :disabled="trialButtonDisabled"
-            :loading="requestingTrial"
-            @click="requestTrialKey"
-          />
-          <Button
-            label="Открыть инструкцию"
-            severity="secondary"
-            :class="secondActionButton()"
-            disabled
-          />
-          <p :class="looseHelperText()">Пробный ключ выдается один раз на 3 дня.</p>
-        </template>
-      </div>
+      <VpnActionsCard
+        :loading="loading"
+        :requesting-trial="requestingTrial"
+        :trial-button-label="trialButtonLabel"
+        :trial-button-disabled="trialButtonDisabled"
+        @request-trial="requestTrialKey"
+      />
     </section>
 
     <section :class="sectionGrid()">
-      <div :class="darkCard()">
-        <p :class="sectionTitle()">Статус доступа</p>
-        <div v-if="loading" :class="statusRow()">
-          <Skeleton width="118px" height="30px" />
-          <Skeleton width="70px" height="18px" />
-        </div>
-        <div v-else :class="statusRow()">
-          <Tag :severity="accessTagSeverity">{{ accessTagLabel }}</Tag>
-          <span :class="mutedText()">{{ accessDaysText }}</span>
-        </div>
-        <p v-if="!loading" :class="looseBodyText()">{{ accessDescription }}</p>
-        <div v-else :class="looseBodyText()">
-          <Skeleton width="100%" height="10px" />
-          <Skeleton class="mt-2" width="84%" height="10px" />
-        </div>
-      </div>
+      <VpnAccessStatusCard
+        :loading="loading"
+        :access-tag-severity="accessTagSeverity"
+        :access-tag-label="accessTagLabel"
+        :access-days-text="accessDaysText"
+        :access-description="accessDescription"
+      />
 
-      <div :class="darkCard()">
-        <p :class="sectionTitle()">Трафик</p>
-        <div v-if="loading" :class="trafficHeader()">
-          <Skeleton width="96px" height="30px" />
-          <Skeleton width="74px" height="14px" />
-        </div>
-        <div v-else :class="trafficHeader()">
-          <div :class="trafficValue()">{{ trafficUsed }}</div>
-          <div :class="hintText()">{{ trafficLimitLabel }}</div>
-        </div>
-        <div :class="progressTrack()">
-          <Skeleton v-if="loading" width="100%" height="8px" />
-          <div v-else :class="progressFill()" :style="{ width: `${trafficPercent}%` }"></div>
-        </div>
-        <p v-if="!loading" :class="helperText()">Потребленный трафик по текущему VPN ключу.</p>
-        <Skeleton v-else :class="helperText()" width="66%" height="10px" />
-      </div>
+      <VpnTrafficCard
+        :loading="loading"
+        :traffic-used="trafficUsed"
+        :traffic-limit-label="trafficLimitLabel"
+        :traffic-percent="trafficPercent"
+      />
 
-      <div :class="darkCard()">
-        <p :class="sectionTitle()">Статус подключения</p>
-        <div v-if="loading" :class="statusRow()">
-          <Skeleton shape="circle" size="10px" />
-          <Skeleton width="72px" height="24px" />
-        </div>
-        <div v-else :class="statusRow()">
-          <span :class="statusDotClass"></span>
-          <span :class="statusText()">
-            {{ isOnline ? 'Онлайн' : 'Офлайн' }}
-          </span>
-        </div>
-        <p v-if="!loading" :class="bodyText()">
-          {{ isOnline ? 'Сессия активна, ключ используется.' : 'Подключение не обнаружено.' }}
-        </p>
-        <div v-else :class="bodyText()">
-          <Skeleton width="82%" height="10px" />
-        </div>
-      </div>
+      <VpnConnectionStatusCard :loading="loading" :is-online="isOnline" />
     </section>
   </DefaultLayout>
 </template>
@@ -134,9 +53,11 @@ import { tv } from 'tailwind-variants'
 import { useToast } from 'primevue/usetoast'
 
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import Button from 'primevue/button'
-import Skeleton from 'primevue/skeleton'
-import Tag from 'primevue/tag'
+import VpnKeyCard from '@/components/vpn/VpnKeyCard.vue'
+import VpnActionsCard from '@/components/vpn/VpnActionsCard.vue'
+import VpnAccessStatusCard from '@/components/vpn/VpnAccessStatusCard.vue'
+import VpnTrafficCard from '@/components/vpn/VpnTrafficCard.vue'
+import VpnConnectionStatusCard from '@/components/vpn/VpnConnectionStatusCard.vue'
 import { vpnServices } from '@/services'
 import type { VpnOverviewResponse } from '@/types/vpn'
 
@@ -147,123 +68,10 @@ const styles = tv({
     title: ['text-3xl font-semibold text-white'],
     lead: ['text-slate-300'],
     sectionGrid: ['grid mt-6 gap-6 lg:grid-cols-3'],
-    card: ['rounded-2xl p-6'],
-    cardHeader: ['flex items-center justify-between gap-3'],
-    sectionTitle: ['text-sm uppercase tracking-wide text-slate-400'],
-    helperText: ['text-xs text-slate-400'],
-    bodyText: ['text-sm text-slate-300'],
-    mutedText: ['text-sm text-slate-200'],
-    hintText: ['text-sm text-slate-400'],
-    statusRow: ['mt-3 flex items-center gap-3'],
-    statusText: ['text-lg font-semibold text-white'],
-    statusDot: ['h-2.5 w-2.5 rounded-full'],
-    trafficHeader: ['mt-3 flex items-baseline justify-between'],
-    trafficValue: ['text-2xl font-semibold text-white'],
-    progressTrack: ['mt-3 h-2 rounded-full bg-slate-800'],
-    progressFill: [
-      'h-2 rounded-full bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 transition-all',
-    ],
-    actionButton: ['w-full'],
-    copyButton: ['shrink-0'],
-    keyBox: [
-      'mt-4 rounded-xl border border-slate-800 bg-slate-950 px-4 py-3',
-      'font-mono text-sm text-emerald-300',
-    ],
-    keyPrefix: ['block text-xs text-slate-500'],
-    keyValue: ['break-all'],
-  },
-  variants: {
-    cardTone: {
-      dark: {
-        card: ['bg-slate-900/80'],
-      },
-      deep: {
-        card: ['bg-slate-950/90'],
-      },
-    },
-    cardSpan: {
-      1: {
-        card: [''],
-      },
-      2: {
-        card: ['lg:col-span-2'],
-      },
-    },
-    helperSpacing: {
-      tight: {
-        helperText: ['mt-3'],
-      },
-      loose: {
-        helperText: ['mt-4'],
-      },
-    },
-    bodySpacing: {
-      tight: {
-        bodyText: ['mt-3'],
-      },
-      loose: {
-        bodyText: ['mt-4'],
-      },
-    },
-    actionSpacing: {
-      first: {
-        actionButton: ['mt-4'],
-      },
-      second: {
-        actionButton: ['mt-3'],
-      },
-      none: {
-        actionButton: [''],
-      },
-    },
-    status: {
-      online: {
-        statusDot: ['bg-emerald-400'],
-      },
-      offline: {
-        statusDot: ['bg-rose-400'],
-      },
-    },
-  },
-  defaultVariants: {
-    cardTone: 'dark',
-    cardSpan: 1,
-    helperSpacing: 'tight',
-    bodySpacing: 'tight',
-    actionSpacing: 'none',
   },
 })
 
-const {
-  layout,
-  header,
-  title,
-  lead,
-  sectionGrid,
-  cardHeader,
-  sectionTitle,
-  helperText,
-  bodyText,
-  mutedText,
-  hintText,
-  statusRow,
-  statusText,
-  trafficHeader,
-  trafficValue,
-  progressTrack,
-  progressFill,
-  copyButton,
-  keyBox,
-  keyPrefix,
-  keyValue,
-} = styles()
-
-const deepWideCard = styles({ cardTone: 'deep', cardSpan: 2 }).card
-const darkCard = styles({ cardTone: 'dark' }).card
-const firstActionButton = styles({ actionSpacing: 'first' }).actionButton
-const secondActionButton = styles({ actionSpacing: 'second' }).actionButton
-const looseHelperText = styles({ helperSpacing: 'loose' }).helperText
-const looseBodyText = styles({ bodySpacing: 'loose' }).bodyText
+const { layout, header, title, lead, sectionGrid } = styles()
 
 const toast = useToast()
 
@@ -284,9 +92,6 @@ const keyView = computed(() => {
 })
 
 const isOnline = computed(() => vpnData.value?.connection.isOnline || false)
-const statusDotClass = computed(() =>
-  styles({ status: isOnline.value ? 'online' : 'offline' }).statusDot(),
-)
 
 const accessTagLabel = computed(() => {
   const status = vpnData.value?.access.status || 'none'
