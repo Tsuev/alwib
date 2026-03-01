@@ -1,3 +1,4 @@
 export { default as authServices } from './authServices'
+export * as downloaderServices from './downloaderServices'
 export * as vpnServices from './vpnServices'
 export * as exampleServices from './example'

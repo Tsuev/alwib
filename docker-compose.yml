@@ -48,6 +48,8 @@ services:
       XUI_INBOUND_ID: '1'
       XUI_ALLOW_INSECURE_TLS: 'true'
       XUI_ONLINE_WINDOW_SECONDS: '300'
+      MEDIA_ROLLER_BASE_URL: http://82.202.156.136:8085/
+      DOWNLOADER_FILE_TTL_SECONDS: '120'
     command: sh -c "npx prisma migrate deploy && npm run start:prod"
     ports:
       - '3000:3000'

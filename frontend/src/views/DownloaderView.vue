@@ -4,10 +4,10 @@
       <div :class="panel()">
         <h1 :class="title()">Загрузчик контента</h1>
         <p :class="lead()">
-          Вставьте ссылку на пост или видео. Мы подготовим скачивание через API Cobalt.
+          Вставьте ссылку на пост или видео. Мы подготовим скачивание через Media Roller.
         </p>
 
-        <form :class="downloadForm()" @submit.prevent>
+        <form :class="downloadForm()" @submit.prevent="handleDownload">
           <div :class="inputShell()">
             <div :class="inputRow()">
               <InputText
@@ -15,14 +15,16 @@
                 type="url"
                 placeholder="https://..."
                 :class="urlInput()"
+                :readonly="isDownloading"
               />
               <Button
                 :class="downloadButton()"
-                :disabled="!sourceUrl.trim()"
-              >
-                <i class="pi pi-download"></i>
-                <span :class="downloadText()">Скачать</span>
-              </Button>
+                type="submit"
+                icon="pi pi-download"
+                :disabled="!sourceUrl.trim() || isDownloading"
+                :loading="isDownloading"
+                label="Скачать"
+              />
             </div>
           </div>
         </form>
@@ -55,9 +57,13 @@ import { ref } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
+import { downloaderServices } from '@/services'
 import { tv } from 'tailwind-variants'
 
 const sourceUrl = ref('')
+const isDownloading = ref(false)
+const toast = useToast()
 
 const supportedServices = [
   { name: 'YouTube', iconSlug: 'youtube' },
@@ -98,7 +104,6 @@ const styles = tv({
     ],
     urlInput: ['w-full border-0 bg-transparent text-sm text-white placeholder:text-slate-500'],
     downloadButton: ['download-action shrink-0 rounded-xl px-5'],
-    downloadText: ['hidden md:inline'],
     supportBlock: ['mx-auto mt-7 max-w-4xl'],
     supportTitle: ['text-center text-xs uppercase tracking-[0.22em] text-slate-400'],
     servicesGrid: ['mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4'],
@@ -127,9 +132,42 @@ const {
   servicesGrid,
   serviceChip,
   serviceIcon,
-  downloadText,
   note,
 } = styles()
+
+const handleDownload = async () => {
+  const url = sourceUrl.value.trim()
+  if (!url || isDownloading.value) {
+    return
+  }
+
+  isDownloading.value = true
+
+  try {
+    const result = await downloaderServices.requestDownload(url)
+    const apiBase = import.meta.env.VITE_API_BASE_URL || window.location.origin
+    const absoluteDownloadUrl = new URL(result.downloadUrl, apiBase).toString()
+
+    const link = document.createElement('a')
+    link.href = absoluteDownloadUrl
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+    link.setAttribute('download', result.fileName || 'content')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    sourceUrl.value = ''
+  } catch {
+    toast.add({
+      severity: 'error',
+      summary: 'Загрузчик контента',
+      detail: 'Произошла ошибка при скачивании контента.',
+      life: 4000,
+    })
+  } finally {
+    isDownloading.value = false
+  }
+}
 </script>
 
 <style scoped>

@@ -71,6 +71,7 @@ docker compose down -v
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (если используете OAuth)
 - `SMTP_*` (если нужна отправка OTP на email)
 - `XUI_BASE_URL` / `XUI_USERNAME` / `XUI_PASSWORD` / `XUI_INBOUND_ID` (для VPN через 3x-ui)
+- `MEDIA_ROLLER_BASE_URL` (для загрузчика контента)
 
 ## Полезно
 

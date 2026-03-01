@@ -123,6 +123,7 @@ async function bootstrap() {
     )
     .addTag('auth', 'Аутентификация и авторизация')
     .addTag('app', 'Основные функции приложения')
+    .addTag('downloader', 'Загрузка контента через Media Roller')
     .addTag('vpn', 'VPN интеграция через 3x-ui')
     .build();
 
