@@ -156,6 +156,12 @@ const handleDownload = async () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+    toast.add({
+      severity: 'success',
+      summary: 'Загрузчик контента',
+      detail: 'Файл успешно отправлен на скачивание.',
+      life: 3000,
+    })
     sourceUrl.value = ''
   } catch {
     toast.add({
