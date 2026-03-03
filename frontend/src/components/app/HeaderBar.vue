@@ -33,10 +33,10 @@
         <div :class="desktopWrap()">
           <div :class="chip()">
             <i :class="chipIconBolt()" aria-hidden="true"></i>
-            <span>Pro trial</span>
+            <span>Pro тестовая подписка</span>
           </div>
 
-          <button :class="chipButton()">
+          <button v-if="false" :class="chipButton()">
             <i :class="chipIconBell()" aria-hidden="true"></i>
             <span>3</span>
           </button>

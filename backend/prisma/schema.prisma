@@ -14,16 +14,17 @@ datasource db {
 }
 
 model User {
-  id            Int        @id @default(autoincrement())
-  email         String     @unique
-  password      String
-  role          String     @default("user")
-  emailVerified Boolean    @default(false)
-  googleId      String?
-  name          String?
+  id                Int          @id @default(autoincrement())
+  email             String       @unique
+  password          String
+  role              String       @default("user")
+  emailVerified     Boolean      @default(false)
+  googleId          String?
+  name              String?
   vpnTrialClaimedAt DateTime?
-  createdAt     DateTime   @default(now())
-  emailOtps     EmailOtp[]
+  createdAt         DateTime     @default(now())
+  emailOtps         EmailOtp[]
+  aiPinnedChats     AiPinnedChat[]
 }
 
 model EmailOtp {
@@ -36,4 +37,34 @@ model EmailOtp {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model AiPinnedChat {
+  id         String          @id
+  userId     Int
+  agent      String
+  roleLocked Boolean         @default(false)
+  input      String          @default("")
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  messages   AiPinnedMessage[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, updatedAt])
+}
+
+model AiPinnedMessage {
+  id        String   @id @default(cuid())
+  chatId    String
+  role      String
+  content   String
+  order     Int
+  createdAt DateTime @default(now())
+
+  chat AiPinnedChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([chatId, order])
 }

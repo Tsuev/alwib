@@ -1,5 +1,8 @@
 <template>
-  <article :class="[chatCard(), chat.pinned ? pinnedChatCard() : '']" :style="chat.pinned ? pinnedCardStyle : undefined">
+  <article
+    :class="[chatCard(), chat.pinned ? pinnedChatCard() : '']"
+    :style="chat.pinned ? pinnedCardStyle : undefined"
+  >
     <div :class="chatHeader()">
       <div :class="macButtons()">
         <Button
@@ -38,6 +41,7 @@
         <select
           :value="chat.agent"
           :class="agentSelect()"
+          :disabled="chat.roleLocked"
           @change="$emit('set-agent', chat.id, ($event.target as HTMLSelectElement).value)"
         >
           <option v-for="agent in agentOptions" :key="agent.value" :value="agent.value">
@@ -49,17 +53,41 @@
     </div>
 
     <div :class="chatBody()">
-      <div :class="messageIncoming()">Чем помочь в этом диалоге?</div>
-      <div :class="messageOutgoing()">
-        Выбран агент:
-        <span :class="agentBadge()">{{ getAgentLabel(chat.agent) }}</span>
-      </div>
+      <template v-if="chat.messages.length === 0">
+        <div :class="messageIncoming()">Чем помочь в этом диалоге?</div>
+      </template>
+      <template v-else>
+        <div
+          v-for="message in chat.messages"
+          :key="message.id"
+          :class="message.role === 'user' ? messageOutgoing() : messageIncoming()"
+        >
+          <AiMarkdownMessage v-if="message.role === 'assistant'" :content="message.content" />
+          <template v-else>{{ message.content }}</template>
+        </div>
+      </template>
+
+      <div v-if="chat.isTyping" :class="typingMessage()">Печатает...</div>
     </div>
 
     <div :class="chatFooter()">
-      <input type="text" placeholder="Введите сообщение..." :class="chatInput()" />
-      <button type="button" :class="sendButton()">
-        <i class="pi pi-send"></i>
+      <input
+        type="text"
+        placeholder="Введите сообщение..."
+        :maxlength="maxLength"
+        :value="chat.input"
+        :class="chatInput()"
+        @input="$emit('set-input', chat.id, ($event.target as HTMLInputElement).value)"
+        @keydown.enter.prevent="$emit('send-message', chat.id)"
+      />
+      <button
+        type="button"
+        :class="sendButton()"
+        :disabled="chat.isTyping || !chat.input.trim()"
+        @click="$emit('send-message', chat.id)"
+      >
+        <i v-if="!chat.isTyping" class="pi pi-send"></i>
+        <i v-else class="pi pi-spin pi-spinner"></i>
       </button>
     </div>
   </article>
@@ -68,7 +96,8 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import { tv } from 'tailwind-variants'
-import { getAgentLabel, type AgentOption, type ChatItem } from '@/types/ai'
+import AiMarkdownMessage from '@/components/ai/AiMarkdownMessage.vue'
+import { CHAT_INPUT_MAX_LENGTH, type AgentOption, type ChatItem } from '@/types/ai'
 
 defineProps<{
   chat: ChatItem
@@ -80,7 +109,11 @@ defineEmits<{
   'open-expanded': [id: string]
   'toggle-pin': [id: string]
   'set-agent': [id: string, value: string]
+  'set-input': [id: string, value: string]
+  'send-message': [id: string]
 }>()
+
+const maxLength = CHAT_INPUT_MAX_LENGTH
 
 const pinnedCardStyle = {
   boxShadow: '0 0 15px rgba(110, 231, 183, 0.38), 0 0 8px rgba(16, 185, 129, 0.26)',
@@ -108,7 +141,7 @@ const styles = tv({
     agentSelect: [
       'h-8 min-w-[170px] appearance-none rounded-lg border border-slate-800',
       'bg-slate-900 pl-3 pr-8 text-xs text-slate-200 outline-none',
-      'transition focus:border-slate-700',
+      'transition focus:border-slate-700 disabled:cursor-not-allowed disabled:opacity-60',
     ],
     selectIcon: [
       'pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2',
@@ -117,12 +150,15 @@ const styles = tv({
     chatBody: [
       'flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-xl',
       'border border-slate-800/80 bg-slate-900/50 p-3',
+      ''
     ],
-    messageIncoming: ['max-w-[85%] rounded-xl bg-slate-800 px-3 py-2 text-xs text-slate-200'],
+    messageIncoming: [
+      'max-w-[85%] whitespace-pre-wrap rounded-xl bg-slate-800 px-3 py-2 text-xs text-slate-200',
+    ],
     messageOutgoing: [
-      'ml-auto max-w-[85%] rounded-xl bg-emerald-500/20 px-3 py-2 text-right text-xs text-emerald-200',
+      'ml-auto max-w-[85%] whitespace-pre-wrap rounded-xl bg-emerald-500/20 px-3 py-2 text-right text-xs text-emerald-200 text-left',
     ],
-    agentBadge: ['ml-1 font-semibold text-emerald-300'],
+    typingMessage: ['max-w-[40%] rounded-xl bg-slate-800 px-3 py-2 text-xs text-slate-400 italic'],
     chatFooter: ['mt-3 flex items-center gap-2 px-1'],
     chatInput: [
       'h-9 w-full rounded-lg border border-slate-800 bg-slate-900 px-3',
@@ -130,7 +166,7 @@ const styles = tv({
     ],
     sendButton: [
       'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-800',
-      'bg-slate-900 text-slate-300 transition hover:text-white',
+      'bg-slate-900 text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-60',
     ],
   },
 })
@@ -152,7 +188,7 @@ const {
   chatBody,
   messageIncoming,
   messageOutgoing,
-  agentBadge,
+  typingMessage,
   chatFooter,
   chatInput,
   sendButton,

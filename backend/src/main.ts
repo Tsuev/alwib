@@ -122,6 +122,7 @@ async function bootstrap() {
       'JWT-auth',
     )
     .addTag('auth', 'Аутентификация и авторизация')
+    .addTag('ai', 'AI ассистенты и закрепленные чаты')
     .addTag('app', 'Основные функции приложения')
     .addTag('downloader', 'Загрузка контента через Media Roller')
     .addTag('vpn', 'VPN интеграция через 3x-ui')

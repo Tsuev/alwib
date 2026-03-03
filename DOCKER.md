@@ -65,13 +65,14 @@ docker compose down -v
 
 ## Настройка переменных
 
-Основные переменные уже заданы в `docker-compose.yml`.
+Docker Compose читает переменные из корневого файла `.env`.
 Для production обязательно замените минимум:
 - `JWT_SECRET`
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (если используете OAuth)
 - `SMTP_*` (если нужна отправка OTP на email)
 - `XUI_BASE_URL` / `XUI_USERNAME` / `XUI_PASSWORD` / `XUI_INBOUND_ID` (для VPN через 3x-ui)
 - `MEDIA_ROLLER_BASE_URL` (для загрузчика контента)
+- `DEEPSEEK_API_KEY` / `DEEPSEEK_MODEL` (для AI ассистентов)
 
 ## Полезно
 

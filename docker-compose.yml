@@ -3,15 +3,15 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: alwib
-      POSTGRES_USER: alwib
-      POSTGRES_PASSWORD: alwib
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U alwib -d alwib']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 20
@@ -25,34 +25,37 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgresql://alwib:alwib@postgres:5432/alwib?schema=public
-      JWT_SECRET: replace-this-with-long-random-secret
-      FRONTEND_URL: http://localhost:5173
-      FRONTEND_URLS: http://localhost:5173,http://localhost:5174
-      FRONTEND_OAUTH_REDIRECT_URL: http://localhost:5173/auth
-      CORS_ALLOW_PRIVATE_NETWORK: 'true'
-      GOOGLE_CLIENT_ID: ''
-      GOOGLE_CLIENT_SECRET: ''
-      GOOGLE_CALLBACK_URL: http://localhost:3000/auth/google/callback
-      SMTP_HOST: smtp.gmail.com
-      SMTP_PORT: '587'
-      SMTP_SECURE: 'false'
-      SMTP_USER: tsuevjudoka@gmail.com
-      SMTP_PASS: svzw yfyy qmft cqrw
-      SMTP_FROM: tsuevjudoka@gmail.com
-      XUI_BASE_URL: https://alwib.ru:27419/wayvpn/
-      XUI_USERNAME: qari
-      XUI_PASSWORD: 8447080vasman
-      XUI_INBOUND_ID: '1'
-      XUI_ALLOW_INSECURE_TLS: 'true'
-      XUI_ONLINE_WINDOW_SECONDS: '300'
-      MEDIA_ROLLER_BASE_URL: http://82.202.156.136:8085/
-      DOWNLOADER_FILE_TTL_SECONDS: '120'
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${BACKEND_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL}
+      FRONTEND_URLS: ${FRONTEND_URLS}
+      FRONTEND_OAUTH_REDIRECT_URL: ${FRONTEND_OAUTH_REDIRECT_URL}
+      CORS_ALLOW_PRIVATE_NETWORK: ${CORS_ALLOW_PRIVATE_NETWORK}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM}
+      XUI_BASE_URL: ${XUI_BASE_URL}
+      XUI_USERNAME: ${XUI_USERNAME}
+      XUI_PASSWORD: ${XUI_PASSWORD}
+      XUI_INBOUND_ID: ${XUI_INBOUND_ID}
+      XUI_ALLOW_INSECURE_TLS: ${XUI_ALLOW_INSECURE_TLS}
+      XUI_ONLINE_WINDOW_SECONDS: ${XUI_ONLINE_WINDOW_SECONDS}
+      MEDIA_ROLLER_BASE_URL: ${MEDIA_ROLLER_BASE_URL}
+      DOWNLOADER_FILE_TTL_SECONDS: ${DOWNLOADER_FILE_TTL_SECONDS}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
     command: sh -c "npx prisma migrate deploy && npm run start:prod"
     ports:
-      - '3000:3000'
+      - '${BACKEND_PORT}:3000'
 
   frontend:
     build:
@@ -62,9 +65,9 @@ services:
     depends_on:
       - backend
     environment:
-      VITE_API_BASE_URL: http://localhost:3000
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     ports:
-      - '5173:5173'
+      - '${FRONTEND_PORT}:5173'
 
 volumes:
   postgres_data:

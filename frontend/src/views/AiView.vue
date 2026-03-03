@@ -9,18 +9,39 @@
 
     <section ref="chatWorkspaceRef" :class="workspace()">
       <TransitionGroup name="chat-list" tag="div" :class="chatRow()" :style="chatRowStyle">
-        <AiChatCard
-          v-for="chat in chats"
-          :key="chat.id"
-          :chat="chat"
-          :agent-options="agentOptions"
-          @remove-chat="removeChat"
-          @open-expanded="openExpanded"
-          @toggle-pin="togglePin"
-          @set-agent="setAgent"
-        />
+        <template v-if="isLoadingPinnedChats">
+          <article v-for="index in 3" :key="`skeleton-${index}`" :class="skeletonCard()">
+            <div :class="skeletonHeader()">
+              <Skeleton width="90px" height="24px" />
+              <Skeleton width="150px" height="30px" />
+            </div>
+            <div :class="skeletonBody()">
+              <Skeleton width="70%" height="12px" />
+              <Skeleton width="56%" height="12px" />
+              <Skeleton width="82%" height="12px" />
+            </div>
+            <div :class="skeletonFooter()">
+              <Skeleton width="100%" height="36px" />
+              <Skeleton width="40px" height="36px" />
+            </div>
+          </article>
+        </template>
+        <template v-else>
+          <AiChatCard
+            v-for="chat in chats"
+            :key="chat.id"
+            :chat="chat"
+            :agent-options="agentOptions"
+            @remove-chat="removeChat"
+            @open-expanded="openExpanded"
+            @toggle-pin="togglePin"
+            @set-agent="setAgent"
+            @set-input="setInput"
+            @send-message="sendMessage"
+          />
 
-        <AiAddChatCard key="add-chat-card" @add-chat="addChat" />
+          <AiAddChatCard key="add-chat-card" @add-chat="addChat" />
+        </template>
       </TransitionGroup>
     </section>
 
@@ -32,6 +53,8 @@
         @close="closeExpanded"
         @toggle-pin="togglePin"
         @set-agent="setAgent"
+        @set-input="setInput"
+        @send-message="sendMessage"
       />
     </Transition>
   </DefaultLayout>
@@ -46,9 +69,21 @@ import { agentOptions } from '@/types/ai'
 import { useAiChats } from '@/composables/useAiChats'
 import { tv } from 'tailwind-variants'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import Skeleton from 'primevue/skeleton'
 
-const { chats, expandedChat, addChat, removeChat, togglePin, openExpanded, closeExpanded, setAgent } =
-  useAiChats()
+const {
+  chats,
+  expandedChat,
+  isLoadingPinnedChats,
+  addChat,
+  removeChat,
+  togglePin,
+  openExpanded,
+  closeExpanded,
+  setAgent,
+  setInput,
+  sendMessage,
+} = useAiChats()
 const chatWorkspaceRef = ref<HTMLElement | null>(null)
 const chatRowWidth = ref<number | null>(null)
 let chatWorkspaceObserver: ResizeObserver | null = null
@@ -101,15 +136,35 @@ const styles = tv({
     header: ['flex flex-col gap-2'],
     title: ['text-3xl font-semibold text-white'],
     lead: ['text-slate-300'],
-    workspace: ['mt-2 mx-auto w-full max-w-[1940px] px-3 sm:px-4 lg:px-6'],
+    workspace: ['mt-[36px] mx-auto w-full max-w-[1940px] px-3 sm:px-4 lg:px-6'],
     chatRow: [
       'mt-4 mx-auto grid justify-start gap-x-4 gap-y-4 md:gap-x-5 md:gap-y-5',
       '[grid-template-columns:repeat(auto-fit,minmax(320px,360px))]',
     ],
+    skeletonCard: [
+      'flex h-[430px] w-full max-w-[360px] flex-col rounded-2xl border border-slate-800/80',
+      'bg-slate-950/75 px-3.5 pb-3 pt-3.5 shadow-xl shadow-black/30 backdrop-blur',
+    ],
+    skeletonHeader: ['mb-3 flex items-center justify-between gap-2'],
+    skeletonBody: [
+      'flex min-h-0 flex-1 flex-col gap-3 overflow-hidden rounded-xl border border-slate-800/80 bg-slate-900/50 p-3',
+    ],
+    skeletonFooter: ['mt-3 flex items-center gap-2 px-1'],
   },
 })
 
-const { layout, header, title, lead, workspace, chatRow } = styles()
+const {
+  layout,
+  header,
+  title,
+  lead,
+  workspace,
+  chatRow,
+  skeletonCard,
+  skeletonHeader,
+  skeletonBody,
+  skeletonFooter,
+} = styles()
 </script>
 
 <style scoped>
