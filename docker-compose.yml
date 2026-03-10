@@ -53,6 +53,7 @@ services:
       DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL}
       DEEPSEEK_MODEL: ${DEEPSEEK_MODEL}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      TWO_IP_TOKEN: ${TWO_IP_TOKEN}
     command: sh -c "npx prisma migrate deploy && npm run start:prod"
     ports:
       - '${BACKEND_PORT}:3000'

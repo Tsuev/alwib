@@ -1,0 +1,4 @@
+interface:
+  display_name: "Alwib Backend"
+  short_description: "NestJS backend development for Alwib workspace"
+  default_prompt: "Implement or refactor backend features in backend/ with DTO validation, Prisma migrations, and Swagger/auth alignment."

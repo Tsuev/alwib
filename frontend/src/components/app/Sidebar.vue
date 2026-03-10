@@ -57,6 +57,15 @@
           <i :class="menuIconDownload()"></i>
           <span>Загрузчик</span>
         </RouterLink>
+        <RouterLink
+          to="/ip-check"
+          :class="menuItem()"
+          :exact-active-class="menuItemActive()"
+          @click="closeSidebar"
+        >
+          <i :class="menuIconIp()"></i>
+          <span>Проверка IP</span>
+        </RouterLink>
       </div>
 
       <div :class="section()">
@@ -143,6 +152,9 @@ const styles = tv({
     menuIconDownload: [
       'pi pi-cloud-download min-w-[20px] text-lg text-slate-400 group-hover:text-primary-300 group-[.router-link-exact-active]:text-primary-400',
     ],
+    menuIconIp: [
+      'pi pi-globe min-w-[20px] text-lg text-slate-400 group-hover:text-primary-300 group-[.router-link-exact-active]:text-primary-400',
+    ],
     menuIconChart: ['pi pi-chart-bar min-w-[20px] text-lg text-slate-400'],
     menuIconSend: ['pi pi-send min-w-[20px] text-lg text-slate-400'],
     badgeSoon: [
@@ -175,6 +187,7 @@ const {
   menuIconShield,
   menuIconComment,
   menuIconDownload,
+  menuIconIp,
   menuIconChart,
   menuIconSend,
   badgeSoon,

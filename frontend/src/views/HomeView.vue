@@ -280,12 +280,12 @@ const modules: ModuleConfig[] = [
   },
   {
     title: 'IP Checker',
-    description: 'Проверка владельца IP через 2ip API.',
-    statusLabel: 'Скоро',
-    statusSeverity: 'warning',
-    limits: ['1 запрос в день бесплатно', 'Подписка: до 50/неделю'],
-    actionLabel: 'Скоро',
-    disabled: true,
+    description: 'Проверка IP-адреса или домена через 2ip API с картой.',
+    statusLabel: 'Доступно',
+    statusSeverity: 'info',
+    limits: ['IP и доменные имена', 'Карта с геолокацией'],
+    actionLabel: 'Открыть',
+    route: '/ip-check',
   },
 ]
 </script>

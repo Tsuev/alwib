@@ -8,6 +8,7 @@ import DownloaderView from '@/views/DownloaderView.vue'
 import AuthView from '@/views/AuthView.vue'
 import VpnView from '@/views/VpnView.vue'
 import PreloadView from '@/views/PreloadView.vue'
+import IpCheckView from '@/views/IpCheckView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,12 @@ const router = createRouter({
       path: '/downloader',
       name: 'downloader',
       component: DownloaderView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/ip-check',
+      name: 'ip-check',
+      component: IpCheckView,
       meta: { requiresAuth: true },
     },
     {

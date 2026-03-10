@@ -77,7 +77,9 @@ export class AuthService {
 
     if (existingUser) {
       if (existingUser.emailVerified) {
-        throw new ConflictException('Пользователь с таким email уже существует');
+        throw new ConflictException(
+          'Пользователь с таким email уже существует',
+        );
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
