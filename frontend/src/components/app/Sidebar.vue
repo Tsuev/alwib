@@ -66,6 +66,15 @@
           <i :class="menuIconIp()"></i>
           <span>Проверка IP</span>
         </RouterLink>
+        <RouterLink
+          to="/store"
+          :class="menuItem()"
+          :exact-active-class="menuItemActive()"
+          @click="closeSidebar"
+        >
+          <i :class="menuIconStore()"></i>
+          <span>Витрина</span>
+        </RouterLink>
       </div>
 
       <div :class="section()">
@@ -155,6 +164,9 @@ const styles = tv({
     menuIconIp: [
       'pi pi-globe min-w-[20px] text-lg text-slate-400 group-hover:text-primary-300 group-[.router-link-exact-active]:text-primary-400',
     ],
+    menuIconStore: [
+      'pi pi-store min-w-[20px] text-lg text-slate-400 group-hover:text-primary-300 group-[.router-link-exact-active]:text-primary-400',
+    ],
     menuIconChart: ['pi pi-chart-bar min-w-[20px] text-lg text-slate-400'],
     menuIconSend: ['pi pi-send min-w-[20px] text-lg text-slate-400'],
     badgeSoon: [
@@ -190,6 +202,7 @@ const {
   menuIconIp,
   menuIconChart,
   menuIconSend,
+  menuIconStore,
   badgeSoon,
   footer,
   logoutButton,

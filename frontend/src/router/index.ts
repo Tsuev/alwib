@@ -9,6 +9,7 @@ import AuthView from '@/views/AuthView.vue'
 import VpnView from '@/views/VpnView.vue'
 import PreloadView from '@/views/PreloadView.vue'
 import IpCheckView from '@/views/IpCheckView.vue'
+import StorefrontView from '@/views/StorefrontView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,6 +42,12 @@ const router = createRouter({
       path: '/ip-check',
       name: 'ip-check',
       component: IpCheckView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/store',
+      name: 'store',
+      component: StorefrontView,
       meta: { requiresAuth: true },
     },
     {

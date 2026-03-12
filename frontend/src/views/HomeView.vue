@@ -263,11 +263,11 @@ const modules: ModuleConfig[] = [
   {
     title: 'Витрины товаров',
     description: 'CRUD товаров и витрина на поддомене пользователя.',
-    statusLabel: 'Скоро',
-    statusSeverity: 'warning',
-    limits: ['SEO-friendly ссылки', 'Контакт в Telegram/WhatsApp'],
-    actionLabel: 'Скоро',
-    disabled: true,
+    statusLabel: 'Доступно',
+    statusSeverity: 'success',
+    limits: ['До 50 товаров', 'Кастомные статусы'],
+    actionLabel: 'Открыть',
+    route: '/store',
   },
   {
     title: 'Plati Market',

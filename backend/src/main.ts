@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
@@ -50,7 +52,8 @@ const isPrivateNetworkFrontendOrigin = (origin: string): boolean => {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useStaticAssets(join(process.cwd(), 'public'));
   app.use(cookieParser());
   const frontendOrigins = (
     process.env.FRONTEND_URLS ||
@@ -126,6 +129,7 @@ async function bootstrap() {
     .addTag('app', 'Основные функции приложения')
     .addTag('downloader', 'Загрузка контента через Media Roller')
     .addTag('vpn', 'VPN интеграция через 3x-ui')
+    .addTag('storefront', 'Конструктор витрин')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
