@@ -16,7 +16,7 @@ export const useStoreStore = defineStore('store', () => {
     }
   }
 
-  async function upsertStore(data: { name?: string; logoUrl?: string }) {
+  async function upsertStore(data: { name?: string; logoUrl?: string; whatsapp?: string; telegram?: string }) {
     const result = await svc.upsertStore(data)
     store.value = result
     return result
@@ -38,6 +38,7 @@ export const useStoreStore = defineStore('store', () => {
     price: number
     imageUrl?: string
     statusId?: number
+    messenger?: string | null
   }) {
     const product = await svc.createProduct(data)
     store.value?.products.push(product)
@@ -52,6 +53,7 @@ export const useStoreStore = defineStore('store', () => {
       price: number
       imageUrl: string
       statusId: number | null
+      messenger: string | null
     }>,
   ) {
     const updated = await svc.updateProduct(id, data)

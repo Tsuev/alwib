@@ -21,6 +21,7 @@ export interface Product {
   description?: string | null
   price: number
   imageUrl?: string | null
+  messenger: string | null
   status?: ProductStatus | null
   createdAt: string
   updatedAt: string
@@ -31,6 +32,8 @@ export interface Store {
   userId: number
   name: string | null
   logoUrl: string | null
+  whatsapp: string | null
+  telegram: string | null
   isPublished: boolean
   products: Product[]
   statuses: ProductStatus[]

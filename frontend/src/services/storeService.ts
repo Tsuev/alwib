@@ -11,6 +11,8 @@ export const getStore = async (): Promise<Store | null> => {
 export const upsertStore = async (data: {
   name?: string
   logoUrl?: string
+  whatsapp?: string
+  telegram?: string
 }): Promise<Store> => {
   const response = await axios.put<Store>('/store', data, {
     withCredentials: true,
@@ -52,6 +54,7 @@ export const createProduct = async (data: {
   price: number
   imageUrl?: string
   statusId?: number
+  messenger?: string | null
 }): Promise<Product> => {
   const response = await axios.post<Product>('/store/products', data, {
     withCredentials: true,
@@ -67,6 +70,7 @@ export const updateProduct = async (
     price: number
     imageUrl: string
     statusId: number | null
+    messenger: string | null
   }>,
 ): Promise<Product> => {
   const response = await axios.patch<Product>(`/store/products/${id}`, data, {

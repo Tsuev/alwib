@@ -16,7 +16,7 @@ const STATUS_LIMIT = 10;
 export class StoreService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getStorefront(userId: number) {
+  async getStore(userId: number) {
     return this.prisma.store.findUnique({
       where: { userId },
       include: {
@@ -29,7 +29,7 @@ export class StoreService {
     });
   }
 
-  async upsertStorefront(userId: number, dto: UpsertStoreDto) {
+  async upsertStore(userId: number, dto: UpsertStoreDto) {
     return this.prisma.store.upsert({
       where: { userId },
       create: { userId, ...dto },

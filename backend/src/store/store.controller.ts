@@ -41,18 +41,18 @@ export class StoreController {
   @Get()
   @ApiOperation({ summary: 'Получить витрину текущего пользователя' })
   @ApiResponse({ status: 200, description: 'Витрина или null' })
-  getStorefront(@Request() req: { user: { id: number } }) {
-    return this.storeService.getStorefront(req.user.id);
+  getStore(@Request() req: { user: { id: number } }) {
+    return this.storeService.getStore(req.user.id);
   }
 
   @Put()
   @ApiOperation({ summary: 'Создать или обновить витрину' })
   @ApiResponse({ status: 200, description: 'Витрина обновлена' })
-  upsertStorefront(
+  upsertStore(
     @Request() req: { user: { id: number } },
-    @Body() dto: UpsertStorefrontDto,
+    @Body() dto: UpsertStoreDto,
   ) {
-    return this.storeService.upsertStorefront(req.user.id, dto);
+    return this.storeService.upsertStore(req.user.id, dto);
   }
 
   @Post('publish')

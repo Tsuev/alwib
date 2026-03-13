@@ -29,8 +29,22 @@
       </div>
 
       <div :class="section()">
-        <p :class="sectionLabel()">Модули</p>
-        <RouterLink
+        <p :class="sectionLabel()">Бизнес</p>
+          <RouterLink
+            to="/store"
+            :class="menuItem()"
+            :exact-active-class="menuItemActive()"
+            @click="closeSidebar"
+          >
+          <i :class="menuIconStore()"></i>
+          <span>Витрина</span>
+        </RouterLink>
+
+      </div>
+
+      <div :class="section()">
+        <p :class="sectionLabel()">Сервисы</p>
+<RouterLink
           to="/vpn"
           :class="menuItem()"
           :exact-active-class="menuItemActive()"
@@ -66,29 +80,6 @@
           <i :class="menuIconIp()"></i>
           <span>Проверка IP</span>
         </RouterLink>
-        <RouterLink
-          to="/store"
-          :class="menuItem()"
-          :exact-active-class="menuItemActive()"
-          @click="closeSidebar"
-        >
-          <i :class="menuIconStore()"></i>
-          <span>Витрина</span>
-        </RouterLink>
-      </div>
-
-      <div :class="section()">
-        <p :class="sectionLabel()">Сервисы</p>
-        <button :class="menuItemDisabled()" type="button" disabled>
-          <i :class="menuIconChart()"></i>
-          <span>TG‑анализатор</span>
-          <span :class="badgeSoon()"> скоро </span>
-        </button>
-        <button :class="menuItemDisabled()" type="button" disabled>
-          <i :class="menuIconSend()"></i>
-          <span>Автопубликации</span>
-          <span :class="badgeSoon()"> скоро </span>
-        </button>
       </div>
 
       <div :class="footer()">
@@ -165,7 +156,7 @@ const styles = tv({
       'pi pi-globe min-w-[20px] text-lg text-slate-400 group-hover:text-primary-300 group-[.router-link-exact-active]:text-primary-400',
     ],
     menuIconStore: [
-      'pi pi-store min-w-[20px] text-lg text-slate-400 group-hover:text-primary-300 group-[.router-link-exact-active]:text-primary-400',
+      'pi pi-shop min-w-[20px] text-lg text-slate-400 group-hover:text-primary-300 group-[.router-link-exact-active]:text-primary-400',
     ],
     menuIconChart: ['pi pi-chart-bar min-w-[20px] text-lg text-slate-400'],
     menuIconSend: ['pi pi-send min-w-[20px] text-lg text-slate-400'],
