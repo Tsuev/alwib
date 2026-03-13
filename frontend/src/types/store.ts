@@ -8,14 +8,14 @@ export type BadgeSeverity =
 
 export interface ProductStatus {
   id: number
-  storefrontId: number
+  storeId: number
   label: string
   severity: BadgeSeverity
 }
 
 export interface Product {
   id: number
-  storefrontId: number
+  storeId: number
   statusId: number | null
   name: string
   description?: string | null
@@ -26,7 +26,7 @@ export interface Product {
   updatedAt: string
 }
 
-export interface Storefront {
+export interface Store {
   id: number
   userId: number
   name: string | null

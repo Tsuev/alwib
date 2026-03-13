@@ -129,7 +129,7 @@ async function bootstrap() {
     .addTag('app', 'Основные функции приложения')
     .addTag('downloader', 'Загрузка контента через Media Roller')
     .addTag('vpn', 'VPN интеграция через 3x-ui')
-    .addTag('storefront', 'Конструктор витрин')
+    .addTag('store', 'Конструктор витрин')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

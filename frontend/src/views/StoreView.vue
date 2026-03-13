@@ -10,10 +10,10 @@
         </div>
       </div>
       <Button
-        :label="store.storefront?.isPublished ? 'Снять с публикации' : 'Опубликовать'"
-        :icon="store.storefront?.isPublished ? 'pi pi-eye-slash' : 'pi pi-send'"
-        :severity="store.storefront?.isPublished ? 'danger' : 'success'"
-        :disabled="!store.storefront?.name"
+        :label="store.store?.isPublished ? 'Снять с публикации' : 'Опубликовать'"
+        :icon="store.store?.isPublished ? 'pi pi-eye-slash' : 'pi pi-send'"
+        :severity="store.store?.isPublished ? 'danger' : 'success'"
+        :disabled="!store.store?.name"
         :loading="publishLoading"
         @click="handleTogglePublish"
       />
@@ -35,8 +35,8 @@
             />
             <button :class="logoButton()" @click="logoInputRef?.click()">
               <img
-                v-if="store.storefront?.logoUrl"
-                :src="store.storefront.logoUrl"
+                v-if="store.store?.logoUrl"
+                :src="store.store.logoUrl"
                 :class="logoImg()"
                 alt="Логотип"
               />
@@ -83,9 +83,9 @@
                 @click="shopNameLocked = false"
               />
             </div>
-            <div v-if="shopNameLocked && store.storefront?.name" :class="shopLink()">
+            <div v-if="shopNameLocked && store.store?.name" :class="shopLink()">
               <i class="pi pi-link text-primary-400 text-sm"></i>
-              <span>{{ store.storefront.name }}.alwib.ru</span>
+              <span>{{ store.store.name }}.alwib.ru</span>
             </div>
           </div>
         </div>
@@ -354,24 +354,24 @@ import Select from 'primevue/select'
 import Badge from 'primevue/badge'
 import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
-import { useStorefrontStore } from '@/stores/storefrontStore'
-import { uploadImage } from '@/services/storefrontService'
+import { useStoreStore } from '@/stores/storeStore'
+import { uploadImage } from '@/services/storeService'
 import type { BadgeSeverity, Product } from '@/types/store'
 import { tv } from 'tailwind-variants'
 
 // ─── Store & toast ────────────────────────────────────────────────────────────
 
-const store = useStorefrontStore()
+const store = useStoreStore()
 const toast = useToast()
 
-const products = computed(() => store.storefront?.products ?? [])
-const statuses = computed(() => store.storefront?.statuses ?? [])
+const products = computed(() => store.store?.products ?? [])
+const statuses = computed(() => store.store?.statuses ?? [])
 
 onMounted(async () => {
   try {
-    await store.fetchStorefront()
-    if (store.storefront?.name) {
-      shopNameDraft.value = store.storefront.name
+    await store.fetchStore()
+    if (store.store?.name) {
+      shopNameDraft.value = store.store.name
       shopNameLocked.value = true
     }
   } catch {
@@ -390,7 +390,7 @@ const handleTogglePublish = async () => {
     toast.add({
       severity: 'success',
       summary: 'Витрина',
-      detail: store.storefront?.isPublished ? 'Опубликовано' : 'Снято с публикации',
+      detail: store.store?.isPublished ? 'Опубликовано' : 'Снято с публикации',
       life: 3000,
     })
   } catch {
@@ -412,7 +412,7 @@ const onLogoSelect = async (e: Event) => {
   try {
     const compressed = await compressImage(file)
     const { url } = await uploadImage(compressed)
-    await store.upsertStorefront({ logoUrl: url })
+    await store.upsertStore({ logoUrl: url })
     toast.add({ severity: 'success', summary: 'Логотип', detail: 'Логотип обновлён', life: 3000 })
   } catch {
     toast.add({ severity: 'error', summary: 'Логотип', detail: 'Не удалось загрузить логотип', life: 4000 })
@@ -432,7 +432,7 @@ const saveShopName = async () => {
   if (!shopNameDraft.value.trim()) return
   shopNameSaving.value = true
   try {
-    await store.upsertStorefront({ name: shopNameDraft.value.trim() })
+    await store.upsertStore({ name: shopNameDraft.value.trim() })
     shopNameLocked.value = true
     toast.add({ severity: 'success', summary: 'Магазин', detail: 'Название сохранено', life: 3000 })
   } catch {

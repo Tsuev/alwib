@@ -28,21 +28,21 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateStatusDto } from './dto/create-status.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { UpsertStorefrontDto } from './dto/upsert-storefront.dto';
-import { StorefrontService } from './storefront.service';
+import { UpsertStoreDto } from './dto/upsert-store.dto';
+import { StoreService } from './store.service';
 
-@ApiTags('storefront')
+@ApiTags('store')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('store')
-export class StorefrontController {
-  constructor(private readonly storefrontService: StorefrontService) {}
+export class StoreController {
+  constructor(private readonly storeService: StoreService) {}
 
   @Get()
   @ApiOperation({ summary: 'Получить витрину текущего пользователя' })
   @ApiResponse({ status: 200, description: 'Витрина или null' })
   getStorefront(@Request() req: { user: { id: number } }) {
-    return this.storefrontService.getStorefront(req.user.id);
+    return this.storeService.getStorefront(req.user.id);
   }
 
   @Put()
@@ -52,14 +52,14 @@ export class StorefrontController {
     @Request() req: { user: { id: number } },
     @Body() dto: UpsertStorefrontDto,
   ) {
-    return this.storefrontService.upsertStorefront(req.user.id, dto);
+    return this.storeService.upsertStorefront(req.user.id, dto);
   }
 
   @Post('publish')
   @ApiOperation({ summary: 'Переключить статус публикации витрины' })
   @ApiResponse({ status: 201, description: 'Статус публикации изменён' })
   togglePublish(@Request() req: { user: { id: number } }) {
-    return this.storefrontService.togglePublish(req.user.id);
+    return this.storeService.togglePublish(req.user.id);
   }
 
   // ─── Upload ────────────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ export class StorefrontController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: join(process.cwd(), 'public', 'uploads', 'storefront'),
+        destination: join(process.cwd(), 'public', 'uploads', 'store'),
         filename: (_req, file, cb) => {
           cb(null, `${uuidv4()}${extname(file.originalname)}`);
         },
@@ -90,7 +90,7 @@ export class StorefrontController {
     @Request() req: { protocol: string; get: (h: string) => string },
   ) {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
-    return { url: `${baseUrl}/uploads/storefront/${file.filename}` };
+    return { url: `${baseUrl}/uploads/store/${file.filename}` };
   }
 
   // ─── Products ──────────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ export class StorefrontController {
   @ApiOperation({ summary: 'Список товаров витрины' })
   @ApiResponse({ status: 200 })
   getProducts(@Request() req: { user: { id: number } }) {
-    return this.storefrontService.getProducts(req.user.id);
+    return this.storeService.getProducts(req.user.id);
   }
 
   @Post('products')
@@ -109,7 +109,7 @@ export class StorefrontController {
     @Request() req: { user: { id: number } },
     @Body() dto: CreateProductDto,
   ) {
-    return this.storefrontService.createProduct(req.user.id, dto);
+    return this.storeService.createProduct(req.user.id, dto);
   }
 
   @Patch('products/:id')
@@ -120,7 +120,7 @@ export class StorefrontController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDto,
   ) {
-    return this.storefrontService.updateProduct(req.user.id, id, dto);
+    return this.storeService.updateProduct(req.user.id, id, dto);
   }
 
   @Delete('products/:id')
@@ -130,7 +130,7 @@ export class StorefrontController {
     @Request() req: { user: { id: number } },
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.storefrontService.deleteProduct(req.user.id, id);
+    return this.storeService.deleteProduct(req.user.id, id);
   }
 
   // ─── Statuses ──────────────────────────────────────────────────────────────
@@ -139,7 +139,7 @@ export class StorefrontController {
   @ApiOperation({ summary: 'Список статусов витрины' })
   @ApiResponse({ status: 200 })
   getStatuses(@Request() req: { user: { id: number } }) {
-    return this.storefrontService.getStatuses(req.user.id);
+    return this.storeService.getStatuses(req.user.id);
   }
 
   @Post('statuses')
@@ -149,7 +149,7 @@ export class StorefrontController {
     @Request() req: { user: { id: number } },
     @Body() dto: CreateStatusDto,
   ) {
-    return this.storefrontService.createStatus(req.user.id, dto);
+    return this.storeService.createStatus(req.user.id, dto);
   }
 
   @Delete('statuses/:id')
@@ -159,6 +159,6 @@ export class StorefrontController {
     @Request() req: { user: { id: number } },
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.storefrontService.deleteStatus(req.user.id, id);
+    return this.storeService.deleteStatus(req.user.id, id);
   }
 }

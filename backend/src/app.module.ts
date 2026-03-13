@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { DownloaderModule } from './downloader/downloader.module';
 import { VpnModule } from './vpn/vpn.module';
 import { IpCheckModule } from './ip-check/ip-check.module';
-import { StorefrontModule } from './storefront/storefront.module';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { StorefrontModule } from './storefront/storefront.module';
     DownloaderModule,
     AiModule,
     IpCheckModule,
-    StorefrontModule,
+    StoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],

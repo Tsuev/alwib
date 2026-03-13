@@ -1,31 +1,31 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import * as svc from '@/services/storefrontService'
-import type { Product, ProductStatus, Storefront } from '@/types/store'
+import * as svc from '@/services/storeService'
+import type { Product, ProductStatus, Store } from '@/types/store'
 
-export const useStorefrontStore = defineStore('storefront', () => {
-  const storefront = ref<Storefront | null>(null)
+export const useStoreStore = defineStore('store', () => {
+  const store = ref<Store | null>(null)
   const isLoading = ref(false)
 
-  async function fetchStorefront() {
+  async function fetchStore() {
     isLoading.value = true
     try {
-      storefront.value = await svc.getStorefront()
+      store.value = await svc.getStore()
     } finally {
       isLoading.value = false
     }
   }
 
-  async function upsertStorefront(data: { name?: string; logoUrl?: string }) {
-    const result = await svc.upsertStorefront(data)
-    storefront.value = result
+  async function upsertStore(data: { name?: string; logoUrl?: string }) {
+    const result = await svc.upsertStore(data)
+    store.value = result
     return result
   }
 
   async function togglePublish() {
     const result = await svc.togglePublish()
-    if (storefront.value) {
-      storefront.value.isPublished = result.isPublished
+    if (store.value) {
+      store.value.isPublished = result.isPublished
     }
     return result
   }
@@ -40,7 +40,7 @@ export const useStorefrontStore = defineStore('storefront', () => {
     statusId?: number
   }) {
     const product = await svc.createProduct(data)
-    storefront.value?.products.push(product)
+    store.value?.products.push(product)
     return product
   }
 
@@ -55,17 +55,17 @@ export const useStorefrontStore = defineStore('storefront', () => {
     }>,
   ) {
     const updated = await svc.updateProduct(id, data)
-    if (storefront.value) {
-      const idx = storefront.value.products.findIndex((p) => p.id === id)
-      if (idx !== -1) storefront.value.products[idx] = updated
+    if (store.value) {
+      const idx = store.value.products.findIndex((p) => p.id === id)
+      if (idx !== -1) store.value.products[idx] = updated
     }
     return updated
   }
 
   async function deleteProduct(id: number) {
     await svc.deleteProduct(id)
-    if (storefront.value) {
-      storefront.value.products = storefront.value.products.filter((p) => p.id !== id)
+    if (store.value) {
+      store.value.products = store.value.products.filter((p) => p.id !== id)
     }
   }
 
@@ -73,26 +73,26 @@ export const useStorefrontStore = defineStore('storefront', () => {
 
   async function createStatus(data: { label: string; severity: string }) {
     const status = await svc.createStatus(data)
-    storefront.value?.statuses.push(status as ProductStatus)
+    store.value?.statuses.push(status as ProductStatus)
     return status
   }
 
   async function deleteStatus(id: number) {
     await svc.deleteStatus(id)
-    if (storefront.value) {
-      storefront.value.statuses = storefront.value.statuses.filter((s) => s.id !== id)
+    if (store.value) {
+      store.value.statuses = store.value.statuses.filter((s) => s.id !== id)
       // Обнуляем statusId у товаров с удалённым статусом
-      storefront.value.products = storefront.value.products.map((p) =>
+      store.value.products = store.value.products.map((p) =>
         p.statusId === id ? { ...p, statusId: null, status: null } : p,
       )
     }
   }
 
   return {
-    storefront,
+    store,
     isLoading,
-    fetchStorefront,
-    upsertStorefront,
+    fetchStore,
+    upsertStore,
     togglePublish,
     createProduct,
     updateProduct,

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { UpsertStorefrontDto } from './dto/upsert-storefront.dto';
+import { UpsertStoreDto } from './dto/upsert-store.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateStatusDto } from './dto/create-status.dto';
@@ -13,11 +13,11 @@ const PRODUCT_LIMIT = 50;
 const STATUS_LIMIT = 10;
 
 @Injectable()
-export class StorefrontService {
+export class StoreService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getStorefront(userId: number) {
-    return this.prisma.storefront.findUnique({
+    return this.prisma.store.findUnique({
       where: { userId },
       include: {
         products: {
@@ -29,8 +29,8 @@ export class StorefrontService {
     });
   }
 
-  async upsertStorefront(userId: number, dto: UpsertStorefrontDto) {
-    return this.prisma.storefront.upsert({
+  async upsertStorefront(userId: number, dto: UpsertStoreDto) {
+    return this.prisma.store.upsert({
       where: { userId },
       create: { userId, ...dto },
       update: { ...dto },
@@ -42,33 +42,33 @@ export class StorefrontService {
   }
 
   async togglePublish(userId: number) {
-    const storefront = await this.prisma.storefront.findUnique({
+    const store = await this.prisma.store.findUnique({
       where: { userId },
     });
-    if (!storefront) {
+    if (!store) {
       throw new NotFoundException('Витрина не найдена');
     }
-    return this.prisma.storefront.update({
+    return this.prisma.store.update({
       where: { userId },
-      data: { isPublished: !storefront.isPublished },
+      data: { isPublished: !store.isPublished },
     });
   }
 
   // ─── Products ──────────────────────────────────────────────────────────────
 
   async getProducts(userId: number) {
-    const storefront = await this.ensureStorefront(userId);
+    const store = await this.ensureStore(userId);
     return this.prisma.product.findMany({
-      where: { storefrontId: storefront.id },
+      where: { storeId: store.id },
       include: { status: true },
       orderBy: { createdAt: 'asc' },
     });
   }
 
   async createProduct(userId: number, dto: CreateProductDto) {
-    const storefront = await this.ensureStorefront(userId);
+    const store = await this.ensureStore(userId);
     const count = await this.prisma.product.count({
-      where: { storefrontId: storefront.id },
+      where: { storeId: store.id },
     });
     if (count >= PRODUCT_LIMIT) {
       throw new BadRequestException(
@@ -76,7 +76,7 @@ export class StorefrontService {
       );
     }
     return this.prisma.product.create({
-      data: { ...dto, storefrontId: storefront.id },
+      data: { ...dto, storeId: store.id },
       include: { status: true },
     });
   }
@@ -102,17 +102,17 @@ export class StorefrontService {
   // ─── Statuses ──────────────────────────────────────────────────────────────
 
   async getStatuses(userId: number) {
-    const storefront = await this.ensureStorefront(userId);
+    const store = await this.ensureStore(userId);
     return this.prisma.productStatus.findMany({
-      where: { storefrontId: storefront.id },
+      where: { storeId: store.id },
       orderBy: { id: 'asc' },
     });
   }
 
   async createStatus(userId: number, dto: CreateStatusDto) {
-    const storefront = await this.ensureStorefront(userId);
+    const store = await this.ensureStore(userId);
     const count = await this.prisma.productStatus.count({
-      where: { storefrontId: storefront.id },
+      where: { storeId: store.id },
     });
     if (count >= STATUS_LIMIT) {
       throw new BadRequestException(
@@ -120,7 +120,7 @@ export class StorefrontService {
       );
     }
     return this.prisma.productStatus.create({
-      data: { ...dto, storefrontId: storefront.id },
+      data: { ...dto, storeId: store.id },
     });
   }
 
@@ -136,8 +136,8 @@ export class StorefrontService {
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
-  private async ensureStorefront(userId: number) {
-    return this.prisma.storefront.upsert({
+  private async ensureStore(userId: number) {
+    return this.prisma.store.upsert({
       where: { userId },
       create: { userId },
       update: {},
@@ -145,9 +145,9 @@ export class StorefrontService {
   }
 
   private async ensureProductOwnership(userId: number, productId: number) {
-    const storefront = await this.ensureStorefront(userId);
+    const store = await this.ensureStore(userId);
     const product = await this.prisma.product.findFirst({
-      where: { id: productId, storefrontId: storefront.id },
+      where: { id: productId, storeId: store.id },
     });
     if (!product) {
       throw new NotFoundException('Товар не найден');
@@ -156,9 +156,9 @@ export class StorefrontService {
   }
 
   private async ensureStatusOwnership(userId: number, statusId: number) {
-    const storefront = await this.ensureStorefront(userId);
+    const store = await this.ensureStore(userId);
     const status = await this.prisma.productStatus.findFirst({
-      where: { id: statusId, storefrontId: storefront.id },
+      where: { id: statusId, storeId: store.id },
     });
     if (!status) {
       throw new NotFoundException('Статус не найден');

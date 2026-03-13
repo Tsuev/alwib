@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
-export class UpsertStorefrontDto {
+export class UpsertStoreDto {
   @ApiPropertyOptional({ maxLength: 10, description: 'Название магазина' })
   @IsOptional()
   @IsString()

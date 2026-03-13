@@ -1,18 +1,18 @@
 import axios from '@/plugins/axios'
-import type { Product, ProductStatus, Storefront } from '@/types/store'
+import type { Product, ProductStatus, Store } from '@/types/store'
 
-export const getStorefront = async (): Promise<Storefront | null> => {
-  const response = await axios.get<Storefront | null>('/store', {
+export const getStore = async (): Promise<Store | null> => {
+  const response = await axios.get<Store | null>('/store', {
     withCredentials: true,
   })
   return response.data
 }
 
-export const upsertStorefront = async (data: {
+export const upsertStore = async (data: {
   name?: string
   logoUrl?: string
-}): Promise<Storefront> => {
-  const response = await axios.put<Storefront>('/store', data, {
+}): Promise<Store> => {
+  const response = await axios.put<Store>('/store', data, {
     withCredentials: true,
   })
   return response.data
