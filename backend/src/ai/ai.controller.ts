@@ -16,6 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AiService } from './ai.service';
 import { RespondAiDto } from './dto/respond-ai.dto';
@@ -73,6 +74,7 @@ export class AiController {
   }
 
   @Put('respond')
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @ApiOperation({ summary: 'Получить ответ AI-ассистента через DeepSeek' })
   @ApiResponse({
     status: 200,

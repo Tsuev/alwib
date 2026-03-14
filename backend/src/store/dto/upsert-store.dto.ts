@@ -13,12 +13,16 @@ export class UpsertStoreDto {
   @IsString()
   logoUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Номер WhatsApp (без +, например 79001234567)' })
+  @ApiPropertyOptional({
+    description: 'Номер WhatsApp (без +, например 79001234567)',
+  })
   @IsOptional()
   @IsString()
   whatsapp?: string;
 
-  @ApiPropertyOptional({ description: 'Telegram username (без @, например myshop)' })
+  @ApiPropertyOptional({
+    description: 'Telegram username (без @, например myshop)',
+  })
   @IsOptional()
   @IsString()
   telegram?: string;
