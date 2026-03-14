@@ -35,7 +35,10 @@ export class CreateProductDto {
   @IsInt()
   statusId?: number;
 
-  @ApiPropertyOptional({ enum: ['whatsapp', 'telegram'], description: 'Мессенджер для связи' })
+  @ApiPropertyOptional({
+    enum: ['whatsapp', 'telegram'],
+    description: 'Мессенджер для связи',
+  })
   @IsOptional()
   @IsString()
   messenger?: string;
