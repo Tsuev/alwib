@@ -1,4 +1,4 @@
-# Alwib Workspace (SaaS Platform)
+# Alwib Workspace (SaaS Platform) (Пока еще в разработке...)
 
 Единая платформа `workspace.alwib.ru` с доступом к полезным SaaS‑модулям по подписке (SSO + Google OAuth). Бренд: `alwib.ru`, пользовательские витрины: `uniqname.alwib.ru`.
 
